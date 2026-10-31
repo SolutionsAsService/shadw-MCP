@@ -14,11 +14,11 @@ auth and request bodies as that repo's `shadw` CLI (`crates/shadw-cli`).
 2. Install and register the server:
 
 ```bash
-git clone https://github.com/SolutionsAsService/shadw-MCP && cd shadw-MCP && npm install
+git clone https://github.com/SolutionsAsService/shadw-MCP && cd shadw-MCP/server && npm install
 ```
 
 ```bash
-claude mcp add shadw -e SHADW_API_KEY=shadw_your_key -- node /path/to/shadw-MCP/src/cli.js
+claude mcp add shadw -e SHADW_API_KEY=shadw_your_key -- node /path/to/shadw-MCP/server/src/cli.js
 ```
 
 Other MCP clients can use the same idea as JSON:
@@ -28,7 +28,7 @@ Other MCP clients can use the same idea as JSON:
   "mcpServers": {
     "shadw": {
       "command": "node",
-      "args": ["/path/to/shadw-MCP/src/cli.js"],
+      "args": ["/path/to/shadw-MCP/server/src/cli.js"],
       "env": { "SHADW_API_KEY": "shadw_your_key" }
     }
   }
@@ -74,8 +74,10 @@ role than the key that creates it.
 
 ## Development
 
+The server is the npm package in [`server/`](server/); run its tests from there.
+
 ```bash
-npm test
+cd server && npm test
 ```
 
 The tests run the real MCP client against the server over an in-memory transport, and a local mock of the Shadw API
@@ -86,7 +88,7 @@ stands in for the real one. They never call the live API.
 The project site lives in [`site/`](site/) (live address once deployed: `https://shadw-mcp.shadw.app/`). It has eight
 pages: the landing, setup, keys, deploy, health, rollback, tools and 404.
 
-[`_src/build.mjs`](_src/build.mjs) generates every page from `src/tools.js`, `src/client.js` and `src/cli.js`, so the
+[`_src/build.mjs`](_src/build.mjs) generates every page from `server/src/tools.js`, `server/src/client.js` and `server/src/cli.js`, so the
 site cannot list a tool, figure or default the server does not have. Each number it prints is recorded with its
 procedure in `site/facts.json`. Each sentence about behaviour links to the line it describes, and the build fails if
 that line is gone.
@@ -102,6 +104,6 @@ node _src/measure.mjs
 The second command renders every page in headless Chrome. It checks the first screen, overflow, contrast and target
 sizes, and writes the social card.
 
-The site is deploy-ready for Vercel and Shadw: a root `vercel.json` (`"framework": null`, output `site`), a
+The repository root holds only the static site, so Shadw and Vercel serve `site/` as static files. A root `package.json` with a `start` script would send Shadw's framework detector down its Node lane, which is why the server lives in `server/`. The site is deploy-ready for Vercel and Shadw: a root `vercel.json` (`"framework": null`, output `site`), a
 `site/vercel.json`, and a root `index.html` that redirects. The design process is recorded in
 [`DESIGN-LOG.md`](DESIGN-LOG.md).

@@ -134,7 +134,7 @@ export function registerTools(server, client, { fetchImpl = globalThis.fetch } =
       title: "Create a Shadw API key",
       description:
         "Mint a new API key for an agent. The plaintext token is returned ONCE; store it as SHADW_API_KEY. " +
-        "Prefer the lowest role that works: viewer (read), member (deploy), admin, owner. A key cannot exceed its creator's role.",
+        "Prefer the lowest role that works: viewer (read), member (deploy), admin, owner. The Shadw server refuses a role above the creating key's.",
       inputSchema: {
         name: z.string().min(1).describe("Label shown in the dashboard, e.g. 'agent-ci'"),
         role: z.enum(["viewer", "member", "admin", "owner"]).default("member"),
@@ -302,7 +302,7 @@ export function registerTools(server, client, { fetchImpl = globalThis.fetch } =
     "shadw_promote_deployment",
     {
       title: "Promote a Shadw deployment (rollback)",
-      description: "Make a deployment the project's production deployment. Used for instant rollback.",
+      description: "Make a deployment the project's production deployment. Used to roll back.",
       inputSchema: { id: z.string().min(1) },
       annotations: WRITE,
     },

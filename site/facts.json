@@ -1,9 +1,9 @@
 {
-  "built_from": "https://github.com/SolutionsAsService/shadw-MCP (src/tools.js, src/client.js, test/server.test.js)",
+  "built_from": "https://github.com/SolutionsAsService/shadw-MCP (server/src/tools.js, server/src/client.js, server/test/server.test.js)",
   "figures": {
     "tools": {
       "value": 15,
-      "procedure": "count of server.registerTool( calls in src/tools.js"
+      "procedure": "count of server.registerTool( calls in server/src/tools.js"
     },
     "read": {
       "value": 9,
@@ -23,11 +23,11 @@
     },
     "requiredEnv": {
       "value": 1,
-      "procedure": "SHADW_API_KEY (or its alias SHADW_TOKEN) is the only required variable: without it every tool but shadw_platform_status fails (src/cli.js warns)"
+      "procedure": "SHADW_API_KEY (or its alias SHADW_TOKEN) is the only required variable: without it every tool but shadw_platform_status fails (server/src/cli.js warns)"
     },
     "envVars": {
       "value": 6,
-      "procedure": "distinct env.SHADW_* reads in src/client.js"
+      "procedure": "distinct env.SHADW_* reads in server/src/client.js"
     },
     "waitDefault": {
       "value": 600,
@@ -39,7 +39,7 @@
     },
     "logTail": {
       "value": 40,
-      "procedure": "summarizeBuild default tail in src/tools.js"
+      "procedure": "summarizeBuild default tail in server/src/tools.js"
     },
     "verdicts": {
       "value": 3,
@@ -49,9 +49,21 @@
       "value": 2,
       "procedure": "calls on the rollback path: shadw_list_deployments (for the id), then shadw_promote_deployment"
     },
+    "testedTools": {
+      "value": 7,
+      "procedure": "distinct tools named in call(\"shadw_...\") in server/test/server.test.js"
+    },
+    "timeoutMs": {
+      "value": 30000,
+      "procedure": "the SHADW_TIMEOUT_MS fallback in resolveConfig, server/src/client.js"
+    },
+    "probeOkBelow": {
+      "value": 500,
+      "procedure": "the status a live probe must stay below to count as answering, probe() in server/src/tools.js"
+    },
     "tests": {
       "value": 7,
-      "procedure": "top-level test( calls in test/server.test.js; run `npm test`"
+      "procedure": "top-level test( calls in server/test/server.test.js; run `npm test`"
     }
   },
   "tools": [
@@ -61,7 +73,7 @@
       "routes": [
         "GET /v1/whoami"
       ],
-      "source": "src/tools.js:121"
+      "source": "server/src/tools.js:121"
     },
     {
       "name": "shadw_create_api_key",
@@ -69,7 +81,7 @@
       "routes": [
         "POST /v1/apikeys"
       ],
-      "source": "src/tools.js:132"
+      "source": "server/src/tools.js:132"
     },
     {
       "name": "shadw_list_api_keys",
@@ -77,7 +89,7 @@
       "routes": [
         "GET /v1/apikeys"
       ],
-      "source": "src/tools.js:148"
+      "source": "server/src/tools.js:148"
     },
     {
       "name": "shadw_revoke_api_key",
@@ -85,7 +97,7 @@
       "routes": [
         "DELETE /v1/apikeys/:id"
       ],
-      "source": "src/tools.js:159"
+      "source": "server/src/tools.js:159"
     },
     {
       "name": "shadw_deploy",
@@ -94,7 +106,7 @@
         "POST /v1/git/deploy",
         "GET /v1/builds/:id"
       ],
-      "source": "src/tools.js:170"
+      "source": "server/src/tools.js:170"
     },
     {
       "name": "shadw_build_status",
@@ -102,7 +114,7 @@
       "routes": [
         "GET /v1/builds/:id"
       ],
-      "source": "src/tools.js:200"
+      "source": "server/src/tools.js:200"
     },
     {
       "name": "shadw_cancel_build",
@@ -110,7 +122,7 @@
       "routes": [
         "POST /v1/builds/:id/cancel"
       ],
-      "source": "src/tools.js:219"
+      "source": "server/src/tools.js:219"
     },
     {
       "name": "shadw_list_projects",
@@ -118,7 +130,7 @@
       "routes": [
         "GET /v1/gitops/projects"
       ],
-      "source": "src/tools.js:230"
+      "source": "server/src/tools.js:230"
     },
     {
       "name": "shadw_project",
@@ -126,7 +138,7 @@
       "routes": [
         "GET /v1/projects/:project/settings"
       ],
-      "source": "src/tools.js:250"
+      "source": "server/src/tools.js:250"
     },
     {
       "name": "shadw_project_health",
@@ -135,7 +147,7 @@
         "GET /v1/gitops/projects",
         "GET /v1/logs"
       ],
-      "source": "src/tools.js:261"
+      "source": "server/src/tools.js:261"
     },
     {
       "name": "shadw_list_deployments",
@@ -143,7 +155,7 @@
       "routes": [
         "GET /deployments"
       ],
-      "source": "src/tools.js:277"
+      "source": "server/src/tools.js:277"
     },
     {
       "name": "shadw_promote_deployment",
@@ -151,7 +163,7 @@
       "routes": [
         "POST /v1/deployments/:id/promote"
       ],
-      "source": "src/tools.js:302"
+      "source": "server/src/tools.js:302"
     },
     {
       "name": "shadw_redeploy_project",
@@ -159,7 +171,7 @@
       "routes": [
         "POST /v1/projects/:project/redeploy"
       ],
-      "source": "src/tools.js:313"
+      "source": "server/src/tools.js:313"
     },
     {
       "name": "shadw_logs",
@@ -167,7 +179,7 @@
       "routes": [
         "GET /v1/logs"
       ],
-      "source": "src/tools.js:324"
+      "source": "server/src/tools.js:324"
     },
     {
       "name": "shadw_platform_status",
@@ -176,7 +188,7 @@
         "GET /v1/status",
         "GET /v1/status/incidents"
       ],
-      "source": "src/tools.js:347"
+      "source": "server/src/tools.js:347"
     }
   ]
 }

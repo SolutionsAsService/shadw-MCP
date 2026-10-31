@@ -30,43 +30,43 @@
 <main id="main">
 <section class="head"><div class="wrap"><p class="kicker">3 · Health</p><h1>3 verdicts, each with its reasons.</h1></div></section>
 <section class="body"><div class="wrap">
-<p class="lede"><code>shadw_project_health</code> reads three things and returns one verdict: <code>down</code>, <code>degraded</code>, <code>healthy</code>, with the reasons. It is a check you run, not a monitor: nothing runs between calls. <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L62">src/tools.js:62</a></p>
+<p class="lede"><code>shadw_project_health</code> reads three things and returns one verdict: <code>down</code>, <code>degraded</code>, <code>healthy</code>, with the reasons. It is a check you run, not a monitor: nothing runs between calls. <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/server/src/tools.js#L62">server/src/tools.js:62</a></p>
 <ol class="verdict">
-  <li class="v-down"><b>down</b> when the project has no production deployment, or its production URL does not answer below HTTP 500. <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L92">src/tools.js:92</a></li>
-  <li class="v-degraded"><b>degraded</b> when the last build ended in <code>error</code> or <code>cancelled</code>, or 5xx responses were logged in the window (default <code>1h</code>; also 30m, 24h, 7d). <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L87">src/tools.js:87</a></li>
+  <li class="v-down"><b>down</b> when the project has no production deployment, or its production URL does not answer below HTTP 500. <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/server/src/tools.js#L92">server/src/tools.js:92</a></li>
+  <li class="v-degraded"><b>degraded</b> when the last build ended in <code>error</code> or <code>cancelled</code>, or 5xx responses were logged in the window (default <code>1h</code>; also 30m, 24h, 7d). <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/server/src/tools.js#L87">server/src/tools.js:87</a></li>
   <li class="v-healthy"><b>healthy</b> otherwise.</li>
 </ol>
-<p>Two other outcomes: a project the key's team does not have is an error, not a verdict <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L66">src/tools.js:66</a>; and when the logs cannot be read, the reason says so and the verdict is at least <code>degraded</code> <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L89">src/tools.js:89</a>.</p>
+<p>Two other outcomes: a project the key's team does not have is an error, not a verdict <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/server/src/tools.js#L66">server/src/tools.js:66</a>; and when the logs cannot be read, the reason says so and the verdict is at least <code>degraded</code> <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/server/src/tools.js#L89">server/src/tools.js:89</a>.</p>
 <div class="tools"><article class="tool k-read" id="shadw_project_health">
   <header><h3><code>shadw_project_health</code></h3><span class="kind">read</span></header>
   <p>One verdict (healthy | degraded | down) with reasons: last build state, whether the production URL answers (status, latency), and 5xx responses logged in the window.</p>
   <p class="routes"><code>GET /v1/gitops/projects</code> <code>GET /v1/logs</code></p>
   <dl class="params"><dt><code>project</code></dt><dd>required</dd><dt><code>range</code></dt><dd>default <code>&quot;1h&quot;</code></dd></dl>
-  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L261">src/tools.js:261</a></p>
+  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L261">server/src/tools.js:261</a></p>
 </article><article class="tool k-read" id="shadw_logs">
   <header><h3><code>shadw_logs</code></h3><span class="kind">read</span></header>
   <p>Request/event logs, filtered by project, deployment, status (e.g. '5xx' or '404,5xx'), text and window.</p>
   <p class="routes"><code>GET /v1/logs</code></p>
   <dl class="params"><dt><code>project</code></dt><dd>optional</dd><dt><code>deployment</code></dt><dd>optional</dd><dt><code>status</code></dt><dd>optional</dd><dt><code>q</code></dt><dd>optional</dd><dt><code>range</code></dt><dd>optional</dd><dt><code>limit</code></dt><dd>default <code>100</code></dd></dl>
-  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L324">src/tools.js:324</a></p>
+  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L324">server/src/tools.js:324</a></p>
 </article><article class="tool k-read" id="shadw_platform_status">
   <header><h3><code>shadw_platform_status</code></h3><span class="kind">read</span></header>
   <p>Platform-wide status and current incidents (no key needed).</p>
   <p class="routes"><code>GET /v1/status</code> <code>GET /v1/status/incidents</code></p>
   <p class="muted">No parameters.</p>
-  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L347">src/tools.js:347</a></p>
+  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L347">server/src/tools.js:347</a></p>
 </article><article class="tool k-read" id="shadw_list_projects">
   <header><h3><code>shadw_list_projects</code></h3><span class="kind">read</span></header>
   <p>Projects for the key's team, with Git source, production deployment and last build.</p>
   <p class="routes"><code>GET /v1/gitops/projects</code></p>
   <p class="muted">No parameters.</p>
-  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L230">src/tools.js:230</a></p>
+  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L230">server/src/tools.js:230</a></p>
 </article><article class="tool k-read" id="shadw_project">
   <header><h3><code>shadw_project</code></h3><span class="kind">read</span></header>
   <p>A project's settings: build config, Git link, last build.</p>
   <p class="routes"><code>GET /v1/projects/:project/settings</code></p>
   <dl class="params"><dt><code>project</code></dt><dd>required</dd></dl>
-  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L250">src/tools.js:250</a></p>
+  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L250">server/src/tools.js:250</a></p>
 </article></div></div></section>
 </main>
 <footer class="foot"><div class="wrap foot-in">

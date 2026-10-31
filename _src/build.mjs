@@ -14,8 +14,8 @@ const REPO = "https://github.com/SolutionsAsService/shadw-MCP";
 const SITE = "https://shadw-mcp.shadw.app/";
 
 const src = (f) => readFileSync(join(root, f), "utf8");
-const files = Object.fromEntries(["src/tools.js", "src/client.js", "src/cli.js", "test/server.test.js"].map((f) => [f, src(f)]));
-const pkg = JSON.parse(src("package.json"));
+const files = Object.fromEntries(["server/src/tools.js", "server/src/client.js", "server/src/cli.js", "server/test/server.test.js"].map((f) => [f, src(f)]));
+const pkg = JSON.parse(src("server/package.json"));
 
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
@@ -31,7 +31,7 @@ function cite(file, needle) {
 }
 
 // ---- parse the tools ---------------------------------------------------------------------------------------
-const toolsSrc = files["src/tools.js"];
+const toolsSrc = files["server/src/tools.js"];
 const blocks = toolsSrc.split("server.registerTool(").slice(1);
 // Helper functions a tool calls through: their API routes belong to that tool too.
 const helpers = Object.fromEntries(
@@ -77,7 +77,7 @@ const tools = blocks.map((b) => {
     const optional = /\.optional\(\)/.test(x) || def !== undefined;
     return { name, default: def, optional };
   });
-  return { name, title, description, kind, routes: [...new Set(routes)], params: paramList, line: lineOf("src/tools.js", `"${name}",`) };
+  return { name, title, description, kind, routes: [...new Set(routes)], params: paramList, line: lineOf("server/src/tools.js", `"${name}",`) };
 });
 
 const STAGES = [
@@ -105,27 +105,33 @@ const healthRanges = healthBlock.match(/range:\s*z\.enum\(\[([^\]]+)\]\)/)[1].ma
 const healthDefault = healthBlock.match(/range:[^\n]*\.default\("(\w+)"\)/)[1];
 const counts = { read: 0, write: 0, destructive: 0 };
 tools.forEach((t) => counts[t.kind]++);
-const envVars = [...new Set([...files["src/client.js"].matchAll(/env\.(SHADW_[A-Z_]+)/g)].map((m) => m[1]))];
-const defaultApi = files["src/client.js"].match(/DEFAULT_API = "([^"]+)"/)[1];
-const testCount = (files["test/server.test.js"].match(/^test\(/gm) || []).length;
+const envVars = [...new Set([...files["server/src/client.js"].matchAll(/env\.(SHADW_[A-Z_]+)/g)].map((m) => m[1]))];
+const defaultApi = files["server/src/client.js"].match(/DEFAULT_API = "([^"]+)"/)[1];
+const testCount = (files["server/test/server.test.js"].match(/^test\(/gm) || []).length;
+const testedTools = new Set([...files["server/test/server.test.js"].matchAll(/call\("(shadw_\w+)"/g)].map((m) => m[1])).size;
+const timeoutMs = Number(files["server/src/client.js"].match(/SHADW_TIMEOUT_MS\) \?\? (\d+)/)[1]);
+const probeOkBelow = Number(toolsSrc.match(/ok: r\.status < (\d+)/)[1]);
 const ROLLBACK_PATH = ["shadw_list_deployments", "shadw_promote_deployment"]; // find the deployment id, then promote it
 if (ROLLBACK_PATH.some((n) => !byName[n])) throw new Error("rollback path tools missing");
 const rollbackCalls = ROLLBACK_PATH.length;
 
 const FIG = {
-  tools: { value: tools.length, procedure: "count of server.registerTool( calls in src/tools.js" },
+  tools: { value: tools.length, procedure: "count of server.registerTool( calls in server/src/tools.js" },
   read: { value: counts.read, procedure: "tools whose annotations are RO (readOnlyHint: true)" },
   write: { value: counts.write, procedure: "tools whose annotations are WRITE (readOnlyHint: false, no destructiveHint)" },
   destructive: { value: counts.destructive, procedure: "tools whose annotations set destructiveHint: true" },
   roles: { value: roles.length, procedure: "values of the role enum in shadw_create_api_key" },
-  requiredEnv: { value: 1, procedure: "SHADW_API_KEY (or its alias SHADW_TOKEN) is the only required variable: without it every tool but shadw_platform_status fails (src/cli.js warns)" },
-  envVars: { value: envVars.length, procedure: "distinct env.SHADW_* reads in src/client.js" },
+  requiredEnv: { value: 1, procedure: "SHADW_API_KEY (or its alias SHADW_TOKEN) is the only required variable: without it every tool but shadw_platform_status fails (server/src/cli.js warns)" },
+  envVars: { value: envVars.length, procedure: "distinct env.SHADW_* reads in server/src/client.js" },
   waitDefault: { value: waitDefault, procedure: "timeout_seconds default in shadw_deploy" },
   waitMax: { value: waitMax, procedure: "timeout_seconds max in shadw_deploy" },
-  logTail: { value: logTail, procedure: "summarizeBuild default tail in src/tools.js" },
+  logTail: { value: logTail, procedure: "summarizeBuild default tail in server/src/tools.js" },
   verdicts: { value: verdicts.length, procedure: "distinct status strings returned by projectHealth" },
   rollbackCalls: { value: rollbackCalls, procedure: "calls on the rollback path: shadw_list_deployments (for the id), then shadw_promote_deployment" },
-  tests: { value: testCount, procedure: "top-level test( calls in test/server.test.js; run `npm test`" },
+  testedTools: { value: testedTools, procedure: "distinct tools named in call(\"shadw_...\") in server/test/server.test.js" },
+  timeoutMs: { value: timeoutMs, procedure: "the SHADW_TIMEOUT_MS fallback in resolveConfig, server/src/client.js" },
+  probeOkBelow: { value: probeOkBelow, procedure: "the status a live probe must stay below to count as answering, probe() in server/src/tools.js" },
+  tests: { value: testCount, procedure: "top-level test( calls in server/test/server.test.js; run `npm test`" },
 };
 const fig = (k) => FIG[k].value;
 
@@ -221,7 +227,7 @@ const home = page({
   ${legend}
 </div></section>
 <section class="band"><div class="wrap cols">
-  <div class="c6"><h2>One server, the API the CLI already uses</h2><p>shadw-MCP sends the same requests as Dylan Wong's <code>shadw</code> CLI: a bearer API key, an optional <code>x-hive-team</code> header, and the same routes (mostly <code>/v1</code>) on the Shadw control plane (default <code>${esc(defaultApi)}</code>). ${cite("src/client.js", "headers.authorization = `Bearer")}</p></div>
+  <div class="c6"><h2>One server, the API the CLI already uses</h2><p>shadw-MCP sends the same requests as the <code>shadw</code> CLI in Dylan Wong's Shadw (<a href="https://github.com/dywongcloud/shadow/blob/main/crates/shadw-cli/src/client.rs">its client</a>): a bearer API key, an optional <code>x-hive-team</code> header, and the same routes (mostly <code>/v1</code>) on the Shadw control plane (default <code>${esc(defaultApi)}</code>). ${cite("server/src/client.js", "headers.authorization = `Bearer")}</p></div>
   <div class="c6"><h2>The key decides what the agent may do</h2><p>The server never deletes a project or a deployment. Revoking a key is the only destructive tool, and it is marked <code>destructiveHint</code>. Whether a key may create another key, and with which role, is decided by the Shadw server, not by this one.</p><p><a class="btn" href="setup.html">Set it up</a> <a class="btn ghost" href="tools.html">See all ${fig("tools")} tools</a></p></div>
 </div></section>`,
 });
@@ -237,7 +243,7 @@ const toolCard = (n) => {
   <p>${esc(t.description)}</p>
   ${t.routes.length ? `<p class="routes">${t.routes.map((r) => `<code>${esc(r)}</code>`).join(" ")}</p>` : ""}
   ${params}
-  <p class="src"><a class="cite" href="${REPO}/blob/main/src/tools.js#L${t.line}">src/tools.js:${t.line}</a></p>
+  <p class="src"><a class="cite" href="${REPO}/blob/main/src/tools.js#L${t.line}">server/src/tools.js:${t.line}</a></p>
 </article>`;
 };
 
@@ -255,51 +261,51 @@ const stageTools = (id) => `<div class="tools">${STAGES.find((s) => s.id === id)
 
 const pages = {
   "index.html": home,
-  "setup.html": inner("setup.html", "setup.html", "Set up", "Install shadw-MCP and register it with an MCP client.", `One key, one command, and your agent can reach Shadw.`, `
+  "setup.html": inner("setup.html", "setup.html", "Set up", "Install shadw-MCP and register it with an MCP client.", `One key, three commands, and your agent can reach Shadw.`, `
 <ol class="steps">
   <li><h2>Make a key</h2><p>In the Shadw dashboard, open <b>Settings → API Keys</b>. Use role <code>member</code> to deploy, or <code>viewer</code> for read-only checks. An agent that already has a key can create one with <code>shadw_create_api_key</code>; see <a href="keys.html">Keys</a>.</p></li>
   <li><h2>Install</h2><pre><code>git clone ${REPO}
-cd shadw-MCP &amp;&amp; npm install</code></pre></li>
-  <li><h2>Register it</h2><p>Claude Code:</p><pre><code>claude mcp add shadw -e SHADW_API_KEY=shadw_your_key -- node /path/to/shadw-MCP/src/cli.js</code></pre><p>Any other MCP client:</p><pre><code>{
+cd shadw-MCP/server &amp;&amp; npm install</code></pre></li>
+  <li><h2>Register it</h2><p>Claude Code:</p><pre><code>claude mcp add shadw -e SHADW_API_KEY=shadw_your_key -- node /path/to/shadw-MCP/server/src/cli.js</code></pre><p>Any other MCP client:</p><pre><code>{
   "mcpServers": {
     "shadw": {
       "command": "node",
-      "args": ["/path/to/shadw-MCP/src/cli.js"],
+      "args": ["/path/to/shadw-MCP/server/src/cli.js"],
       "env": { "SHADW_API_KEY": "shadw_your_key" }
     }
   }
 }</code></pre></li>
 </ol>
 <h2>Settings</h2>
-<p>The server reads ${fig("envVars")} environment variables; only the key is required. ${cite("src/client.js", "export function resolveConfig")}</p>
+<p>The server reads ${fig("envVars")} environment variables; only the key is required. ${cite("server/src/client.js", "export function resolveConfig")}</p>
 <table class="t"><thead><tr><th scope="col">Variable</th><th scope="col">Meaning</th><th scope="col">Default</th></tr></thead><tbody>
 <tr><td><code>SHADW_API_KEY</code>, <code>SHADW_TOKEN</code></td><td>Bearer API key</td><td>none</td></tr>
 <tr><td><code>SHADW_API_URL</code>, <code>SHADW_API</code></td><td>Control-plane base URL</td><td><code>${esc(defaultApi)}</code></td></tr>
 <tr><td><code>SHADW_TEAM</code></td><td>Team slug, sent as <code>x-hive-team</code></td><td>none: the key's own team</td></tr>
-<tr><td><code>SHADW_TIMEOUT_MS</code></td><td>Per-request timeout</td><td><code>30000</code></td></tr>
+<tr><td><code>SHADW_TIMEOUT_MS</code></td><td>Per-request timeout</td><td><code>${fig("timeoutMs")}</code></td></tr>
 </tbody></table>
-<p>Without a key the server still starts, and says so on stderr; only <code>shadw_platform_status</code> works. ${cite("src/cli.js", "SHADW_API_KEY is not set")}</p>`),
+<p>Without a key the server still starts, and says so on stderr; only <code>shadw_platform_status</code> works. ${cite("server/src/cli.js", "SHADW_API_KEY is not set")}</p>`),
   "keys.html": inner("keys.html", "keys.html", "Keys", "API keys and roles for agents using shadw-MCP.", `${fig("roles")} roles. Give the agent the lowest one that works.`, `
-<p class="lede">A key carries one of ${roles.map((r) => `<code>${r}</code>`).join(", ")}. <code>shadw_create_api_key</code> defaults to <code>${defaultRole}</code>, and its plaintext token is returned once. ${cite("src/tools.js", "role: z.enum(")}</p>
-<p>A bad or missing key comes back as an error result that names the fix (<code>SHADW_API_KEY</code>, and <code>SHADW_TEAM</code> for a key that spans teams), not as a crash. ${cite("src/tools.js", "e.status === 401 || e.status === 403")}</p>
+<p class="lede">A key carries one of ${roles.length} roles (${roles.map((r) => `<code>${r}</code>`).join(", ")}); give the agent the lowest that works. A key cannot mint a role above its own: the Shadw server refuses it, not this one <a class="cite" href="https://github.com/PrometheusIntelligence/shadow/blob/2522715/crates/hive-cloud/src/admin.rs#L11995">shadow: hive-cloud/src/admin.rs:11995</a>. ${cite("server/src/tools.js", "role: z.enum(")}</p>
+<p>A bad or missing key comes back as an error result that names the fix (<code>SHADW_API_KEY</code>, and <code>SHADW_TEAM</code> for a key that spans teams), not as a crash. ${cite("server/src/tools.js", "e.status === 401 || e.status === 403")}</p>
 ${stageTools("keys")}`),
   "deploy.html": inner("deploy.html", "deploy.html", "Deploy", "Deploy a Git repository to Shadw from an agent.", `One call ships a repo, and by default waits for the build.`, `
-<p class="lede"><code>shadw_deploy</code> posts the same body as <code>shadw deploy</code> in the CLI, tagged <code>creator: "mcp"</code>. With <code>wait</code> on (the default) it polls the build until <code>ready</code>, <code>error</code> or <code>cancelled</code>, for up to ${fig("waitDefault")} seconds by default (at most ${fig("waitMax")}), and returns the state, the URL and the last ${fig("logTail")} log lines ${cite("src/tools.js", "export function summarizeBuild")}. ${cite("src/client.js", "export function buildDeployBody")} ${cite("src/tools.js", "export async function waitForBuild")}</p>
+<p class="lede"><code>shadw_deploy</code> posts the same body as <code>shadw deploy</code> in the CLI, tagged <code>creator: "mcp"</code>. With <code>wait</code> on (the default) it polls the build until <code>ready</code>, <code>error</code> or <code>cancelled</code>, for up to ${fig("waitDefault")} seconds by default (at most ${fig("waitMax")}), and returns the state, the URL and the last ${fig("logTail")} log lines ${cite("server/src/tools.js", "export function summarizeBuild")}. ${cite("server/src/client.js", "export function buildDeployBody")} ${cite("server/src/tools.js", "export async function waitForBuild")}</p>
 ${stageTools("deploy")}`),
   "health.html": inner("health.html", "health.html", "Health", "Project health, logs and platform status for agents.", `${fig("verdicts")} verdicts, each with its reasons.`, `
-<p class="lede"><code>shadw_project_health</code> reads three things and returns one verdict: <code>${verdicts.join("</code>, <code>")}</code>, with the reasons. It is a check you run, not a monitor: nothing runs between calls. ${cite("src/tools.js", "export async function projectHealth")}</p>
+<p class="lede"><code>shadw_project_health</code> reads three things and returns one verdict: <code>${verdicts.join("</code>, <code>")}</code>, with the reasons. It is a check you run, not a monitor: nothing runs between calls. ${cite("server/src/tools.js", "export async function projectHealth")}</p>
 <ol class="verdict">
-  <li class="v-down"><b>down</b> when the project has no production deployment, or its production URL does not answer below HTTP 500. ${cite("src/tools.js", "const down =")}</li>
-  <li class="v-degraded"><b>degraded</b> when the last build ended in <code>error</code> or <code>cancelled</code>, or 5xx responses were logged in the window (default <code>${healthDefault}</code>; also ${healthRanges.filter((r) => r !== healthDefault).join(", ")}). ${cite("src/tools.js", "5xx responses logged in the last")}</li>
+  <li class="v-down"><b>down</b> when the project has no production deployment, or its production URL does not answer below HTTP ${fig("probeOkBelow")}. ${cite("server/src/tools.js", "const down =")}</li>
+  <li class="v-degraded"><b>degraded</b> when the last build ended in <code>error</code> or <code>cancelled</code>, or 5xx responses were logged in the window (default <code>${healthDefault}</code>; also ${healthRanges.filter((r) => r !== healthDefault).join(", ")}). ${cite("server/src/tools.js", "5xx responses logged in the last")}</li>
   <li class="v-healthy"><b>healthy</b> otherwise.</li>
 </ol>
-<p>Two other outcomes: a project the key's team does not have is an error, not a verdict ${cite("src/tools.js", "not found for this key's team")}; and when the logs cannot be read, the reason says so and the verdict is at least <code>degraded</code> ${cite("src/tools.js", "logs unavailable")}.</p>
+<p>Two other outcomes: a project the key's team does not have is an error, not a verdict ${cite("server/src/tools.js", "not found for this key's team")}; and when the logs cannot be read, the reason says so and the verdict is at least <code>degraded</code> ${cite("server/src/tools.js", "logs unavailable")}.</p>
 ${stageTools("health")}`),
   "rollback.html": inner("rollback.html", "rollback.html", "Roll back", "List deployments, roll back and redeploy with shadw-MCP.", `Roll back in ${fig("rollbackCalls")} calls: list, then promote.`, `
-<p class="lede">List a project's deployments, then promote one: promoting makes an earlier deployment the live (production) one again, at once. Or rebuild from the linked branch. Nothing here deletes anything. ${cite("src/tools.js", "/promote`")}</p>
+<p class="lede">List a project's deployments, then promote one: promoting makes an earlier deployment the live (production) one again. Or rebuild from the linked branch. Nothing here deletes anything. ${cite("server/src/tools.js", "/promote`")}</p>
 ${stageTools("rollback")}`),
-  "tools.html": inner("tools.html", "tools.html", "Tools", `All ${fig("tools")} shadw-MCP tools, generated from the source.`, `All ${fig("tools")} tools, generated from <code>src/tools.js</code>.`, `
-<p class="lede">${fig("read")} read-only, ${fig("write")} write, ${fig("destructive")} destructive. This page is built from the tool definitions, so it cannot list a tool the server does not have. ${fig("tests")} tests drive these tools through a real MCP client against a mock Shadw API.</p>
+  "tools.html": inner("tools.html", "tools.html", "Tools", `All ${fig("tools")} shadw-MCP tools, generated from the source.`, `All ${fig("tools")} tools, generated from <code>server/src/tools.js</code>.`, `
+<p class="lede">${fig("read")} read-only, ${fig("write")} write, ${fig("destructive")} destructive. This page is built from the tool definitions, so it cannot list a tool the server does not have. ${fig("tests")} tests call ${fig("testedTools")} of the ${fig("tools")} tools through a real MCP client against a mock Shadw API.</p>
 ${STAGES.filter((s) => s.tools.length).map((s) => `<h2 id="stage-${s.id}"><a href="${s.page}">${s.step} · ${s.name}</a></h2><div class="tools">${s.tools.map(toolCard).join("")}</div>`).join("\n")}`),
   "404.html": page({ file: "404.html", title: "Not found · shadw-MCP", description: "Page not found.", body: `<section class="head"><div class="wrap"><p class="kicker">404</p><h1>No page here.</h1><p><a class="btn" href="index.html">Back to the start</a></p></div></section>` }),
 };
@@ -310,6 +316,6 @@ for (const f of ["style.css", "favicon.svg"]) copyFileSync(join(here, f), join(o
 writeFileSync(join(out, "vercel.json"), JSON.stringify({ outputDirectory: "." }, null, 2) + "\n");
 writeFileSync(
   join(out, "facts.json"),
-  JSON.stringify({ built_from: `${REPO} (src/tools.js, src/client.js, test/server.test.js)`, figures: FIG, tools: tools.map(({ name, kind, routes, line }) => ({ name, kind, routes, source: `src/tools.js:${line}` })) }, null, 2) + "\n",
+  JSON.stringify({ built_from: `${REPO} (server/src/tools.js, server/src/client.js, server/test/server.test.js)`, figures: FIG, tools: tools.map(({ name, kind, routes, line }) => ({ name, kind, routes, source: `server/src/tools.js:${line}` })) }, null, 2) + "\n",
 );
 console.log(`built ${Object.keys(pages).length} pages · ${tools.length} tools (${counts.read} read, ${counts.write} write, ${counts.destructive} destructive)`);

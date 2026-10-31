@@ -1,5 +1,7 @@
 // Renders every page of site/ in headless Chrome (DevTools protocol, device-metric emulation, no crop) and writes
 // measurements and screenshots for the panel. `node _src/measure.mjs [outDir]`. No dependencies.
+// `node _src/measure.mjs --selftest` runs every probe on a page built to fail each one, and exits non-zero if any
+// probe passes it: a probe that has never failed has not been tested (an inverted 2.5.8 filter once reported 0).
 import { createServer } from "node:http";
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join, extname, dirname } from "node:path";
@@ -7,12 +9,23 @@ import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const site = join(here, "..", "site");
-const outDir = process.argv[2] ?? join(here, "..", ".dada", "measure");
+const SELFTEST = process.argv.includes("--selftest");
+const outDir = SELFTEST ? join(here, "..", ".dada", "selftest") : process.argv[2] ?? join(here, "..", ".dada", "measure");
 mkdirSync(outDir, { recursive: true });
+const site = SELFTEST ? outDir : join(here, "..", "site");
+if (SELFTEST) {
+  // One page that fails every probe: sideways overflow, low-contrast text, two 16 px targets 18 px apart, a [hidden]
+  // element an author rule shows, a 9 px label, and a hero taller than the first screen.
+  writeFileSync(join(site, "index.html"), `<!doctype html><html><head><meta name="viewport" content="width=device-width"><style>
+body{margin:0;background:#fff;color:#000}.wide{width:1600px;height:10px}.low{color:#ddd}.t{display:inline-block;width:16px;height:16px;background:#00f;margin-right:2px}
+.shown{display:block}.tiny{font-size:9px}.hero .wrap{display:block}.hero h1{height:2000px;margin:0}
+</style></head><body><section class="hero"><div class="wrap"><h1>Tall hero</h1><p class="what">x</p><ol class="relay"><li>x</li></ol><p class="legend">x</p></div></section>
+<div class="wide"></div><p class="low">Low contrast text</p><a class="t" href="#a"></a><a class="t" href="#b"></a>
+<div class="shown" hidden>should be hidden</div><p class="tiny">tiny label</p></body></html>`);
+}
 const CHROME = ["C:/Program Files/Google/Chrome/Application/chrome.exe", "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"].find(existsSync);
-const PAGES = ["index.html", "setup.html", "keys.html", "deploy.html", "health.html", "rollback.html", "tools.html", "404.html"];
-const SIZES = [[1280, 800], [375, 812]];
+const PAGES = SELFTEST ? ["index.html"] : ["index.html", "setup.html", "keys.html", "deploy.html", "health.html", "rollback.html", "tools.html", "404.html"];
+const SIZES = SELFTEST ? [[375, 812]] : [[1280, 800], [375, 812]];
 const TYPES = { ".html": "text/html", ".css": "text/css", ".svg": "image/svg+xml", ".json": "application/json" };
 
 const server = createServer((req, res) => {
@@ -98,7 +111,7 @@ for (const [w, h] of SIZES) {
   for (const p of PAGES) {
     await s("Page.navigate", { url: base + p });
     await new Promise((r) => setTimeout(r, 700));
-    const { result } = await s("Runtime.evaluate", { expression: probe, returnByValue: true });
+    const { result } = await s("Runtime.evaluate", { expression: probe.replace("vw = innerWidth, vh = innerHeight", `vw = ${w}, vh = ${h}`) /* the emulated device, not a zoomed-out layout viewport */, returnByValue: true });
     results[`${p}@${w}`] = result.value;
     if (p === "index.html" || w === 1280) {
       const shot = await s("Page.captureScreenshot", { format: "png", clip: { x: 0, y: 0, width: w, height: h, scale: 1 } });
@@ -106,15 +119,40 @@ for (const [w, h] of SIZES) {
     }
   }
 }
-// The social card: the landing's own first screen at 1200 x 630 (Landing run: the card must match the first screen).
-await s("Emulation.setDeviceMetricsOverride", { width: 1200, height: 630, deviceScaleFactor: 1, mobile: false });
-await s("Page.navigate", { url: base + "index.html" });
-await new Promise((r) => setTimeout(r, 700));
-const og = await s("Page.captureScreenshot", { format: "png", clip: { x: 0, y: 0, width: 1200, height: 630, scale: 1 } });
-writeFileSync(join(site, "og.png"), Buffer.from(og.data, "base64"));
+if (!SELFTEST) {
+  // Forced colours (Windows High Contrast): the cues colour and shadows carry must survive (Mace, run 2 R0).
+  await s("Emulation.setDeviceMetricsOverride", { width: 1280, height: 800, deviceScaleFactor: 1, mobile: false });
+  await s("Emulation.setEmulatedMedia", { features: [{ name: "forced-colors", value: "active" }, { name: "prefers-reduced-motion", value: "reduce" }] });
+  for (const p of ["index.html", "setup.html"]) {
+    await s("Page.navigate", { url: base + p });
+    await new Promise((r) => setTimeout(r, 700));
+    const shot = await s("Page.captureScreenshot", { format: "png", clip: { x: 0, y: 0, width: 1280, height: 800, scale: 1 } });
+    writeFileSync(join(outDir, `${p.replace(".html", "")}-1280-forced.png`), Buffer.from(shot.data, "base64"));
+  }
+  await s("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
+  // The social card: the landing's own first screen at 1200 x 630 (Landing run: the card must match the first screen).
+  await s("Emulation.setDeviceMetricsOverride", { width: 1200, height: 630, deviceScaleFactor: 1, mobile: false });
+  await s("Page.navigate", { url: base + "index.html" });
+  await new Promise((r) => setTimeout(r, 700));
+  const og = await s("Page.captureScreenshot", { format: "png", clip: { x: 0, y: 0, width: 1200, height: 630, scale: 1 } });
+  writeFileSync(join(site, "og.png"), Buffer.from(og.data, "base64"));
+}
 writeFileSync(join(outDir, "measure.json"), JSON.stringify(results, null, 2));
 const summary = Object.entries(results).map(([k, v]) => `${k.padEnd(18)} overflowX=${v.overflowX} hero=${v.hero ? `${v.hero.top}-${v.hero.bottom}/${v.vh} complete=${v.hero.complete}` : "-"} small=${v.smallTargets.length} lowContrast=${v.lowContrast.length} hiddenShown=${v.hiddenShown} minText=${v.smallestText}`);
 console.log(summary.join("\n"));
 ws.close();
 chrome.kill();
 server.close();
+if (SELFTEST) {
+  const v = results["index.html@375"];
+  const caught = {
+    overflow: v.overflowX > 0,
+    contrast: v.lowContrast.length > 0,
+    targets: v.smallTargets.length > 0,
+    hidden: v.hiddenShown > 0,
+    smallestText: v.smallestText < 12,
+    firstScreen: v.hero && !v.hero.complete,
+  };
+  console.log("selftest:", JSON.stringify(caught));
+  if (Object.values(caught).includes(false)) process.exit(1);
+}

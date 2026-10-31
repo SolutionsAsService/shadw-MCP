@@ -335,3 +335,118 @@ add an edge `c_genchi -->|open every capture handed to the panel| CRITICS` besid
 - [x] Anchor Ledger complete and the live graph updated
 - [x] Double-loop paragraph written; carry-forward in `DESIGN-CARRY-FORWARD.md`
 - [x] Final reply states the mode, tools, stop conditions and skips
+
+---
+
+# Run 2: Polish, and the Shadw deploy (2026-10-31)
+
+## 1. Traversal Plan
+
+**Brief, in one sentence:** the site did not deploy to Shadw; make the repository match the owner's static deploy format
+so Shadw serves `site/`, and polish what the R0 premortem finds, without reopening run 1's design.
+
+**Mode:** Adaptive (unchanged). **Run type:** Polish: the concept, the relay, the palette, type, page structure and
+navigation are frozen; structure, deploy, claims, metadata, accessibility and performance moves are allowed.
+**Bound:** the owner's standing rule caps critic rounds; this run plans R0 (premortem) and R1 (judges the fixes), and
+logs anything left after R1 rather than convening R2.
+
+**Skill version:** DADA from PrometheusIntelligence/dada at 4f3a8f9, the first run on the seat registry and ledger.
+
+### Step 0. Tooling
+| Job | Tool used |
+|---|---|
+| Choose the panel | `scripts/pick_panel.py --mode adaptive --run-type polish --project shadw-MCP` |
+| Brief each seat | the prompt in `seats/<seat>.md`, filled with round, evidence, artifact, words and panel directory only (`.dada/prompts/`) |
+| Panel | sub-agents, one per seat, at most three at a time, filing to `.dada/panel/run2-R<n>/` |
+| Measure | `_src/measure.mjs`, after `--selftest` (below) |
+| Record | `scripts/import_log.py` and `scripts/rate_seats.py` in PrometheusIntelligence/dada |
+
+### Instrument check (new skill rule: every probe has a fixture that must fail)
+`node _src/measure.mjs --selftest` builds a page that fails every probe. The first run caught a real defect: on a page
+that overflows sideways, the phone emulation zooms out and `innerHeight` became 3,248 px, so a 2,102 px hero read as
+"complete". The probe now measures against the emulated device (375 x 812, 1280 x 800). After the fix, all six probes
+catch the fixture (overflow, contrast, target spacing, `[hidden]`, smallest text, first screen). Every screenshot
+handed to R0 was opened by the conductor first; none was tiled.
+
+### Panel (from the picker, copied with its reasons)
+| Seat | Why | Score | Rounds |
+|---|---|---|---|
+| Critic: Evidence (Cairo) | required by the Polish panel minimum | 0.881 | 47 |
+| Critic: Usability (Krug) | required by the Polish panel minimum | 0.800 | 60 |
+| Critic: Provocateur (Debord) | required by the Polish panel minimum | 0.765 | 65 |
+| Critic: Inclusion (Mace) | rated: shrunk score 0.845 over 61 rounds | 0.857 | 61 |
+Dotted pair: Debord -.- Krug. No rotation slot: Polish leaves one flexible seat, and the picker rotates only when two
+or more are flexible.
+
+### Seed (unchanged from run 1; the Breaker is frozen)
+Stance `Make It Bigger (Paula Scher)`; Rules `Grid Systems in Graphic Design (Josef Müller-Brockmann)`, `WCAG 2.2
+Contrast and Perceivability (W3C)`; Breaker `Making and Breaking the Grid (Timothy Samara)`; counterpoint `The Vignelli
+Canon (Massimo Vignelli)`. Polish's BREAK is an escalation of the existing device only.
+
+### Frontier (initial)
+| Candidate | Reached via | From | Status |
+|---|---|---|---|
+| The deploy: root `package.json` with a `start` script sends Shadw down the Node lane | owner's report; framework.rs:749-755 | Cairo's duty (run the build) | OPEN |
+| R0 objections | premortem | panel | OPEN (after R0) |
+
+## 3. Panel Reports (run 2)
+
+### Panel, WHOLE, round R0  (artifact examined: commit fef13d3 plus the corrected `_src/measure.mjs`; `.dada/evidence-run2-R0.md`; `.dada/panel/run2-R0/*.png`)
+| Critic | Anchor used | Observed in the work | Verdict | Requested change |
+|---|---|---|---|---|
+| Critic: Evidence (Cairo) | How Charts Lie | ran `npm test` (7/7), the build and the measure; every printed figure holds; F1 root `start` script breaks the static deploy; F2 the framework.rs lines are not in this artifact; F3 `measure.mjs` uncommitted; F4 "the same requests as the shadw CLI" uncited; F5 source links name SolutionsAsService | OBJECT | move the server to a subfolder; commit; cite the CLI; org-neutral links |
+| Critic: Usability (Krug) | Don't Make Me Think | five-second and trunk tests pass; F2 hollow tool squares read as unticked checkboxes, not links; F3 "600" is the loudest thing; F5 keys lede repeats the create_api_key card; F6 the site cannot be tested because it is not live | OBJECT | make tool names look like links; cut the repeat; move package.json and src/ out of the root |
+| Critic: Provocateur (Debord) | Society of the Spectacle, theses 1 and 4 | F1 the canonical address names a site that does not exist (the Node lane); F2 footer "every number is computed" while 30000, HTTP 500 are typed; F3 "One key, one command" then three commands; F4 "7 tests drive these tools" while 4 of 15 are never called; F5 "A key cannot exceed its creator's role" states Shadw's policy as this repo's fact; F6 "instant", "at once" | OBJECT | static root; compute or narrow; "three commands"; "N of 15"; attribute to Shadw; drop "instant" |
+| Critic: Inclusion (Mace) | The Principles of Universal Design, P4, P5, P7 | focus passes after a real Tab press; 2.5.8 passes; F1 in forced colours the current-page cue (colour plus box-shadow) disappears; F2 buttons lose their fill and outline; F5 no forced-colours capture | OBJECT | underline `aria-current` and border buttons in forced colours; capture forced colours |
+
+Statements of meaning: a working reference site that cannot be reached. Three of four seats found the deploy defect
+independently (Cairo F1, Krug F6, Debord F1). Andon pulled: no.
+
+### Resolutions (R0)
+| Finding | Resolution |
+|---|---|
+| Cairo + Krug + Debord: root `package.json` start script sends Shadw down the Node lane | ADAPT (M7): the server moves to `server/`; the root holds only `index.html`, `vercel.json`, `site/` and the generator in `_src/` |
+| Cairo: framework.rs facts not in the artifact | ADAPT (M7): the evidence and the log cite them at PrometheusIntelligence/shadow 2522715 |
+| Cairo: `measure.mjs` uncommitted | ADAPT (M7): committed with the run; R1's evidence names the commit |
+| Cairo: "the same requests as the shadw CLI" uncited | ADAPT (M8): linked to `crates/shadw-cli/src/client.rs` in dywongcloud/shadow |
+| Cairo: links name SolutionsAsService | OVERRULE: GitHub redirects a transferred repository's links and a mirror leaves the original in place, while repo-relative links cannot reach source lines from a site that deploys only `site/`; the links stay absolute |
+| Debord: footer "every number is computed" | ADAPT (M8): the request timeout (30000) and the probe's HTTP threshold (500) are now computed from the source and listed in `facts.json` |
+| Debord: "One key, one command" | ADAPT (M8): "One key, three commands" |
+| Debord: "7 tests drive these tools" | ADAPT (M8): the build counts the tools the tests call and prints it |
+| Debord: "A key cannot exceed its creator's role" | ADAPT (M8): the tool description attributes it to the Shadw server, and keys.html cites hive-cloud's refusal |
+| Debord: "instant", "at once" | ADAPT (M8): removed from the tool description and rollback.html |
+| Krug: tool squares read as checkboxes | ADAPT (M9): tool names underlined as links; the kind squares stay (the shape channel Mace asked for in run 1) |
+| Krug: keys lede repeats the card | ADAPT (M9): the lede keeps only what the card does not say |
+| Krug: "600" is the loudest thing | DEFERRED (out of run type: the stage figures are run 1's frozen Breaker) |
+| Mace: forced-colours current page and buttons | ADAPT (M9): `aria-current` underlined and buttons bordered in forced colours; a forced-colours capture added to the measure |
+
+## Move M7: The repository root holds only the static site  (KEEP-THE-RULE)
+Depends on: none (structure, outside the frozen design)
+Anchors: Rule `Grid Systems in Graphic Design (Josef Müller-Brockmann)` (the same thing in the same place, here for the deploy) | Critic `Critic: Evidence (Cairo)`
+Intent: Shadw's detector sees no `package.json` at the root, finds `index.html` and `vercel.json` (`outputDirectory: site`), and serves `site/` as static.
+Formal argument: framework.rs:749-755 (PrometheusIntelligence/shadow 2522715) sends any root `package.json` with a `start` script to the `node` preset before the static fallback, and `"framework": null` is not an override (vercel_config.rs:19). The owner's rule already says the root holds only the static format.
+Alternatives rejected: (a) drop the `start` script: the next dependency that matches a framework sends it back to Node, and the package still sits at the root against the rule; (b) a `shadw.yml` override: not in Dylan's main yet, so live nodes may not read it.
+Consequence: install becomes `cd shadw-MCP/server && npm install`; the MCP command path gains `server/`; every source citation on the site moves to `server/src/...`.
+Fence: npm users expect `package.json` at a repository root; the README says where it is.
+Frontier effect: the site and the server can deploy and publish independently.
+Mode field: Advanced pole: none. Acceptable pole: the owner's deploy rule.
+
+## Move M8: Every claim the code can back, and only those  (KEEP-THE-RULE)
+Depends on: M7 (citation paths)
+Anchors: Critic `Critic: Provocateur (Debord)`, `Critic: Evidence (Cairo)` | Rule `WCAG 2.2 Contrast and Perceivability (W3C)` (floor for the citation links)
+Intent: the footer's promise becomes true: every default and limit printed is computed; claims about Shadw's server are attributed and cited to Shadw's code.
+Alternatives rejected: (a) narrow the footer to "counts": weaker than making the claim true; (b) delete the role sentence: an agent needs to know why a mint can be refused.
+Consequence: two more figures in `facts.json`; the tools page states test coverage honestly.
+Fence: not applicable.
+Frontier effect: none.
+Mode field: Advanced pole: none. Acceptable pole: `Critic: Provocateur (Debord)`'s claims check.
+
+## Move M9: Links that look like links, and forced colours that keep their cues  (BREAK as escalation: the tool cells, run 1's M3 device, gain a link affordance)
+Depends on: M5 (run 1)
+Anchors: Expression `Dear Data (Giorgia Lupi, Stefanie Posavec)` (the cells) | Rule `WCAG 2.2 Contrast and Perceivability (W3C)`
+Intent: each tool name in a stage tile is underlined like the inline links; in forced colours the current page is underlined and buttons keep a border.
+Alternatives rejected: (a) replace the kind squares with dots: Mace's run-1 shape channel would weaken; (b) arrows after each name: noise in a list of 15.
+Consequence: one more line of ink per chip; measured first screen must still be complete.
+Fence: the squares exist so kind survives without colour; they stay.
+Frontier effect: forced-colours capture becomes part of the measure.
+Mode field: Advanced pole: the cells as links. Acceptable pole: WCAG.

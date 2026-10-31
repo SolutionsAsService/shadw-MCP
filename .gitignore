@@ -1,5 +1,6 @@
 *.log
 .dada/measure/
 .dada/measure/.chrome-profile/
+.dada/selftest/
 .env
 node_modules/

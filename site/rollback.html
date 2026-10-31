@@ -30,25 +30,25 @@
 <main id="main">
 <section class="head"><div class="wrap"><p class="kicker">4 · Roll back</p><h1>Roll back in 2 calls: list, then promote.</h1></div></section>
 <section class="body"><div class="wrap">
-<p class="lede">List a project's deployments, then promote one: promoting makes an earlier deployment the live (production) one again, at once. Or rebuild from the linked branch. Nothing here deletes anything. <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L309">src/tools.js:309</a></p>
+<p class="lede">List a project's deployments, then promote one: promoting makes an earlier deployment the live (production) one again. Or rebuild from the linked branch. Nothing here deletes anything. <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/server/src/tools.js#L309">server/src/tools.js:309</a></p>
 <div class="tools"><article class="tool k-read" id="shadw_list_deployments">
   <header><h3><code>shadw_list_deployments</code></h3><span class="kind">read</span></header>
   <p>Deployments for the key's team (id, project, environment, state, URL), optionally for one project.</p>
   <p class="routes"><code>GET /deployments</code></p>
   <dl class="params"><dt><code>project</code></dt><dd>optional</dd><dt><code>limit</code></dt><dd>default <code>50</code></dd></dl>
-  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L277">src/tools.js:277</a></p>
+  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L277">server/src/tools.js:277</a></p>
 </article><article class="tool k-write" id="shadw_promote_deployment">
   <header><h3><code>shadw_promote_deployment</code></h3><span class="kind">write</span></header>
-  <p>Make a deployment the project's production deployment. Used for instant rollback.</p>
+  <p>Make a deployment the project's production deployment. Used to roll back.</p>
   <p class="routes"><code>POST /v1/deployments/:id/promote</code></p>
   <dl class="params"><dt><code>id</code></dt><dd>required</dd></dl>
-  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L302">src/tools.js:302</a></p>
+  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L302">server/src/tools.js:302</a></p>
 </article><article class="tool k-write" id="shadw_redeploy_project">
   <header><h3><code>shadw_redeploy_project</code></h3><span class="kind">write</span></header>
   <p>Rebuild and redeploy a project from its linked Git branch.</p>
   <p class="routes"><code>POST /v1/projects/:project/redeploy</code></p>
   <dl class="params"><dt><code>project</code></dt><dd>required</dd></dl>
-  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L313">src/tools.js:313</a></p>
+  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L313">server/src/tools.js:313</a></p>
 </article></div></div></section>
 </main>
 <footer class="foot"><div class="wrap foot-in">

@@ -28,31 +28,31 @@
   <symbol id="mark" viewBox="0 0 32 32"><rect x="1" y="1" width="30" height="30" rx="7" fill="#000" stroke="#3f3f4a"/><path d="M5 11h7v10h8V11h7" fill="none" stroke="url(#ramp)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="27" cy="11" r="2.6" fill="#2a8af6"/></symbol>
 </defs></svg>
 <main id="main">
-<section class="head"><div class="wrap"><p class="kicker">0 · Set up</p><h1>One key, one command, and your agent can reach Shadw.</h1></div></section>
+<section class="head"><div class="wrap"><p class="kicker">0 · Set up</p><h1>One key, three commands, and your agent can reach Shadw.</h1></div></section>
 <section class="body"><div class="wrap">
 <ol class="steps">
   <li><h2>Make a key</h2><p>In the Shadw dashboard, open <b>Settings → API Keys</b>. Use role <code>member</code> to deploy, or <code>viewer</code> for read-only checks. An agent that already has a key can create one with <code>shadw_create_api_key</code>; see <a href="keys.html">Keys</a>.</p></li>
   <li><h2>Install</h2><pre><code>git clone https://github.com/SolutionsAsService/shadw-MCP
-cd shadw-MCP &amp;&amp; npm install</code></pre></li>
-  <li><h2>Register it</h2><p>Claude Code:</p><pre><code>claude mcp add shadw -e SHADW_API_KEY=shadw_your_key -- node /path/to/shadw-MCP/src/cli.js</code></pre><p>Any other MCP client:</p><pre><code>{
+cd shadw-MCP/server &amp;&amp; npm install</code></pre></li>
+  <li><h2>Register it</h2><p>Claude Code:</p><pre><code>claude mcp add shadw -e SHADW_API_KEY=shadw_your_key -- node /path/to/shadw-MCP/server/src/cli.js</code></pre><p>Any other MCP client:</p><pre><code>{
   "mcpServers": {
     "shadw": {
       "command": "node",
-      "args": ["/path/to/shadw-MCP/src/cli.js"],
+      "args": ["/path/to/shadw-MCP/server/src/cli.js"],
       "env": { "SHADW_API_KEY": "shadw_your_key" }
     }
   }
 }</code></pre></li>
 </ol>
 <h2>Settings</h2>
-<p>The server reads 6 environment variables; only the key is required. <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/client.js#L17">src/client.js:17</a></p>
+<p>The server reads 6 environment variables; only the key is required. <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/server/src/client.js#L17">server/src/client.js:17</a></p>
 <table class="t"><thead><tr><th scope="col">Variable</th><th scope="col">Meaning</th><th scope="col">Default</th></tr></thead><tbody>
 <tr><td><code>SHADW_API_KEY</code>, <code>SHADW_TOKEN</code></td><td>Bearer API key</td><td>none</td></tr>
 <tr><td><code>SHADW_API_URL</code>, <code>SHADW_API</code></td><td>Control-plane base URL</td><td><code>https://api.shadw.cloud</code></td></tr>
 <tr><td><code>SHADW_TEAM</code></td><td>Team slug, sent as <code>x-hive-team</code></td><td>none: the key's own team</td></tr>
 <tr><td><code>SHADW_TIMEOUT_MS</code></td><td>Per-request timeout</td><td><code>30000</code></td></tr>
 </tbody></table>
-<p>Without a key the server still starts, and says so on stderr; only <code>shadw_platform_status</code> works. <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/cli.js#L6">src/cli.js:6</a></p></div></section>
+<p>Without a key the server still starts, and says so on stderr; only <code>shadw_platform_status</code> works. <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/server/src/cli.js#L6">server/src/cli.js:6</a></p></div></section>
 </main>
 <footer class="foot"><div class="wrap foot-in">
   <p>shadw-MCP 0.1.0 talks to the Shadw control-plane API in <a href="https://github.com/dywongcloud/shadow">dywongcloud/shadow</a>. Source: <a href="https://github.com/SolutionsAsService/shadw-MCP">github.com/SolutionsAsService/shadw-MCP</a>. Every number on this site is computed from the source at build time: <a href="facts.json">facts.json</a>.</p>
