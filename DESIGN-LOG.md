@@ -450,3 +450,89 @@ Consequence: one more line of ink per chip; measured first screen must still be 
 Fence: the squares exist so kind survives without colour; they stay.
 Frontier effect: forced-colours capture becomes part of the measure.
 Mode field: Advanced pole: the cells as links. Acceptable pole: WCAG.
+
+### Panel, WHOLE, round R1  (artifact examined: commit b1620b0; `.dada/evidence-run2-R1.md`; `.dada/panel/run2-R1/*.png`, including the forced-colours captures)
+| Critic | Anchor used | Observed in the work | Verdict | Requested change |
+|---|---|---|---|---|
+| Critic: Evidence (Cairo) | How Charts Lie | reran `npm test` (7/7), the build and the measure herself; every figure holds against `server/src`; no root `package.json`; `measure.mjs` committed; the CLI is cited; F4 source links on `blob/main` drift with the next edit, and the client.rs link is unpinned | PASS | pin source links to a commit (not blocking) |
+| Critic: Usability (Krug) | Don't Make Me Think | five-second and trunk tests pass; tool names now read as links; the static root answers R0 F6; F4 the keys lede still repeats the headline and the card; "600" still loudest (accepted as frozen) | OBJECT | cut the keys lede to the roles and the citations |
+| Critic: Provocateur (Debord) | Society of the Spectacle, theses 1 and 4 | all six R0 objections answered (static root measured, three commands, 7 of 15, the role rule attributed and cited, "at once" gone); F2 revoke "stops authenticating at once" is the server's timing again; F3 the footer's "every number" while 1h, 30m, 24h, 7d and 0.1.0 are not in `facts.json` | OBJECT | drop "at once"; add the enum and version or narrow the footer |
+| Critic: Inclusion (Mace) | The Principles of Universal Design, P4, P7 | both R0 objections answered and visible in the forced-colours captures; kind squares keep their shape channel; 2.5.8 passes; F6 the chip underline in `var(--line)` is faint | PASS | optional: a brighter underline |
+
+Andon pulled: no. Two of four PASS. The round cap is reached (R0 and R1); what follows is applied and measured, not
+re-judged.
+
+### Resolutions (R1)
+| Finding | Resolution |
+|---|---|
+| Krug: keys lede repeats the headline and the card | ADAPT (M10): the lede is the four role names and their two citations |
+| Debord: revoke "stops authenticating at once" | ADAPT (M10): "at once" removed from the tool description (`server/src/tools.js`, commit 9eb38a6) |
+| Debord: footer "every number" | ADAPT (M10): the range enum and the version join `facts.json`, and the footer says "every count, default, limit and version" |
+| Mace: faint chip underline | ADAPT (M10): `var(--mute)` |
+| Cairo: source links on `main` drift | ADAPT (M10): `build.mjs` pins every source link to the commit that last changed `server/` and refuses to build while `server/` is uncommitted; Dylan's client.rs link is pinned to 9f7db47. While doing it, the conductor found that every tool card's source link still pointed at `blob/main/src/tools.js`, a path the move had emptied: a broken link on 15 cards that no seat reported. The pinned links replace it; 44 of 44 checked against `git show` |
+
+## Move M10: Answer R1, and pin the evidence  (KEEP-THE-RULE)
+Recorded after the edits, in the same sitting (deviation, as in run 1's M6).
+Depends on: M7, M8, M9
+Anchors: Critic `Critic: Evidence (Cairo)`, `Critic: Provocateur (Debord)`, `Critic: Usability (Krug)`, `Critic: Inclusion (Mace)` | Rule `WCAG 2.2 Contrast and Perceivability (W3C)`
+Intent: close every R1 finding that has a measurable answer; make every source line the site cites a permanent address.
+Alternatives rejected: (a) a third round: past the cap; (b) leave links on `main`: they drift silently.
+Consequence: a site build now needs `server/` committed first; that is the point.
+Fence: not applicable.
+Frontier effect: none new.
+Mode field: Advanced pole: none. Acceptable pole: the claims and access checks.
+
+## Frontier (final, run 2)
+| Candidate | Status |
+|---|---|
+| The Shadw deploy | TAKEN (M7), measured with Shadw's detector: `node` before, `static` after |
+| R0 claims, access and link findings | TAKEN (M8, M9) |
+| R1 findings | TAKEN (M10) |
+| "600" is the loudest figure (Krug R0, R1) | DEFERRED (out of run type: run 1's frozen Breaker; Krug accepted it in R1) |
+| A live check of `https://shadw-mcp.shadw.app/` | DEFERRED (the owner deploys; nothing here deploys) |
+
+## 4. Anchor Ledger (run 2)
+| Anchor | Role | Status | Evidence |
+|---|---|---|---|
+| Grid Systems in Graphic Design (Josef Müller-Brockmann) | Rule | KEEP | applied to the repository's own layout: the same thing in the same place, so Shadw finds the site |
+| WCAG 2.2 Contrast and Perceivability (W3C) | Rule | KEEP | forced-colours cues added; 0 failures at both widths; survived Mace R0 |
+| Dear Data (Giorgia Lupi, Stefanie Posavec) | Expression | KEEP | the cells became links without losing their shape channel; survived Krug R0 ("checkboxes") |
+| Making and Breaking the Grid (Timothy Samara) | Breaker | KEEP (frozen) | untouched by run 2; Krug's "600" deferred |
+
+### 2f. Deletion review (run 2)
+Deleted: the root `package.json`'s place at the root (moved, not deleted), "instant", "at once" (twice), the
+duplicated keys lede, the claim that every number is computed (narrowed to what is). Residual diff for M7: the site's
+printed figures are unchanged (15, 9/5/1, 4, 600/3600, 40, 3, 2, 7, 6); citation paths gained `server/`; the install
+command gained `/server`; the measured first screen is unchanged (782 and 710).
+
+### 2g. Final-state figures (after the last edit: build at 9eb38a6, then `_src/measure.mjs`, after `--selftest`)
+| Printed figure | Procedure | Final value | Status |
+|---|---|---|---|
+| 15 tools; 9 / 5 / 1 | `registerTool` calls; annotations | 15; 9 / 5 / 1 | reproducible |
+| 7 tests call 7 of 15 tools | `test(` and distinct `call("shadw_…")` in `server/test/server.test.js`; `npm test` 7/7 | 7, 7 | corrected in R0 (was "drive these tools") |
+| 30000 ms; HTTP 500 | `SHADW_TIMEOUT_MS` fallback; `probe()` threshold | 30000; 500 | now computed (Debord R0) |
+| 1h default; 30m, 24h, 7d | `shadw_project_health` range enum | same | now in `facts.json` (Debord R1) |
+| 0.1.0 | `server/package.json` version | 0.1.0 | now in `facts.json` (Debord R1) |
+| First screen | measure | 782/800, 710/812 | measured after the last edit |
+| Source links | `git show <sha>:<path>` for each pinned link | 44 of 44 resolve | measured |
+| Shadw's choice of preset | `fluid_build::framework::detect` | `static` (was `node`) | measured with Shadw's own code |
+
+## 5. Stop test (run 2)
+- **S1** Met: no OPEN item; two DEFERRED with reasons.
+- **S2** Not met: R1 passed 2 of 4 (Cairo, Mace); Krug's and Debord's objections are answered by M10 and measured but not re-judged.
+- **S3** Not met (Polish needs one quiet WHOLE round after the last move; bounded to R0 and R1 by the owner's rule).
+- **S4** Polish push: the refinement with the largest measured effect is the static root, which moves Shadw's choice of preset from `node` to `static`. It was measured with Shadw's own code rather than declared.
+- **S5** Met: run 1's dotted edges are unchanged; Debord -.- Krug sat.
+
+Run 2 is **incomplete under the bound** (S2, S3). Resume point: one WHOLE round with Krug and Debord on commit
+9eb38a6 or later.
+
+## Double loop (run 2)
+The new skill's first run worked where it was designed to. The picker seated the four seats the record supports. The
+self-test caught an instrument defect before the panel saw a number: the zoomed-out viewport made a 2,102 px hero read
+as "complete". Three of four seats found the deploy defect independently, from the evidence file and the owner's rule.
+What failed was the conductor's own path rewrite. A regex excluded paths preceded by `/`, so 15 tool-card links kept
+pointing at `blob/main/src/tools.js` after the move. No seat clicked a link; the pinning move found it. **Process
+amendment:** after any move that relocates files, the measuring script resolves every source link it prints (here,
+`git show <sha>:<path>`), and a link check joins the measurement checklist's probes as "resolves", not just
+"internal".

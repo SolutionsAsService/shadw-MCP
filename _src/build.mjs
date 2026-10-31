@@ -4,6 +4,7 @@
 // reproduces it. Every sentence about the server's behaviour cites the line it describes; `cite()` throws when
 // that code is gone, so the build fails instead of the site drifting.
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -11,6 +12,10 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..");
 const out = join(root, "site");
 const REPO = "https://github.com/SolutionsAsService/shadw-MCP";
+// Source links name the commit that last changed server/, so a line anchor keeps pointing at the line it cites.
+const git = (...args) => execFileSync("git", args, { cwd: join(dirname(fileURLToPath(import.meta.url)), ".."), encoding: "utf8" }).trim();
+if (git("status", "--porcelain", "--", "server")) throw new Error("server/ has uncommitted changes: commit them so source links can be pinned");
+const SRC_REF = git("log", "-1", "--format=%H", "--", "server");
 const SITE = "https://shadw-mcp.shadw.app/";
 
 const src = (f) => readFileSync(join(root, f), "utf8");
@@ -27,7 +32,7 @@ function lineOf(file, needle) {
 }
 function cite(file, needle) {
   const n = lineOf(file, needle);
-  return `<a class="cite" href="${REPO}/blob/main/${file}#L${n}">${file}:${n}</a>`;
+  return `<a class="cite" href="${REPO}/blob/${SRC_REF}/${file}#L${n}">${file}:${n}</a>`;
 }
 
 // ---- parse the tools ---------------------------------------------------------------------------------------
@@ -131,6 +136,8 @@ const FIG = {
   testedTools: { value: testedTools, procedure: "distinct tools named in call(\"shadw_...\") in server/test/server.test.js" },
   timeoutMs: { value: timeoutMs, procedure: "the SHADW_TIMEOUT_MS fallback in resolveConfig, server/src/client.js" },
   probeOkBelow: { value: probeOkBelow, procedure: "the status a live probe must stay below to count as answering, probe() in server/src/tools.js" },
+  healthRanges: { value: healthRanges.join(", "), procedure: "the range enum of shadw_project_health in server/src/tools.js" },
+  version: { value: pkg.version, procedure: "version in server/package.json" },
   tests: { value: testCount, procedure: "top-level test( calls in server/test/server.test.js; run `npm test`" },
 };
 const fig = (k) => FIG[k].value;
@@ -174,7 +181,7 @@ function page({ file, title, description, body, current }) {
 ${body}
 </main>
 <footer class="foot"><div class="wrap foot-in">
-  <p>shadw-MCP ${esc(pkg.version)} talks to the Shadw control-plane API in <a href="https://github.com/dywongcloud/shadow">dywongcloud/shadow</a>. Source: <a href="${REPO}">${REPO.replace("https://", "")}</a>. Every number on this site is computed from the source at build time: <a href="facts.json">facts.json</a>.</p>
+  <p>shadw-MCP ${esc(pkg.version)} talks to the Shadw control-plane API in <a href="https://github.com/dywongcloud/shadow">dywongcloud/shadow</a>. Source: <a href="${REPO}">${REPO.replace("https://", "")}</a>. Every count, default, limit and version on this site is computed from the server's source at build time: <a href="facts.json">facts.json</a>.</p>
   <nav aria-label="Footer">${NAV.map(([h, l]) => `<a href="${h}">${l}</a>`).join("")}</nav>
 </div></footer>
 </body>
@@ -227,7 +234,7 @@ const home = page({
   ${legend}
 </div></section>
 <section class="band"><div class="wrap cols">
-  <div class="c6"><h2>One server, the API the CLI already uses</h2><p>shadw-MCP sends the same requests as the <code>shadw</code> CLI in Dylan Wong's Shadw (<a href="https://github.com/dywongcloud/shadow/blob/main/crates/shadw-cli/src/client.rs">its client</a>): a bearer API key, an optional <code>x-hive-team</code> header, and the same routes (mostly <code>/v1</code>) on the Shadw control plane (default <code>${esc(defaultApi)}</code>). ${cite("server/src/client.js", "headers.authorization = `Bearer")}</p></div>
+  <div class="c6"><h2>One server, the API the CLI already uses</h2><p>shadw-MCP sends the same requests as the <code>shadw</code> CLI in Dylan Wong's Shadw (<a href="https://github.com/dywongcloud/shadow/blob/9f7db47cb0232c5288898c808f76b1937a0e3844/crates/shadw-cli/src/client.rs">its client</a>): a bearer API key, an optional <code>x-hive-team</code> header, and the same routes (mostly <code>/v1</code>) on the Shadw control plane (default <code>${esc(defaultApi)}</code>). ${cite("server/src/client.js", "headers.authorization = `Bearer")}</p></div>
   <div class="c6"><h2>The key decides what the agent may do</h2><p>The server never deletes a project or a deployment. Revoking a key is the only destructive tool, and it is marked <code>destructiveHint</code>. Whether a key may create another key, and with which role, is decided by the Shadw server, not by this one.</p><p><a class="btn" href="setup.html">Set it up</a> <a class="btn ghost" href="tools.html">See all ${fig("tools")} tools</a></p></div>
 </div></section>`,
 });
@@ -243,7 +250,7 @@ const toolCard = (n) => {
   <p>${esc(t.description)}</p>
   ${t.routes.length ? `<p class="routes">${t.routes.map((r) => `<code>${esc(r)}</code>`).join(" ")}</p>` : ""}
   ${params}
-  <p class="src"><a class="cite" href="${REPO}/blob/main/src/tools.js#L${t.line}">server/src/tools.js:${t.line}</a></p>
+  <p class="src"><a class="cite" href="${REPO}/blob/${SRC_REF}/server/src/tools.js#L${t.line}">server/src/tools.js:${t.line}</a></p>
 </article>`;
 };
 
@@ -286,7 +293,7 @@ cd shadw-MCP/server &amp;&amp; npm install</code></pre></li>
 </tbody></table>
 <p>Without a key the server still starts, and says so on stderr; only <code>shadw_platform_status</code> works. ${cite("server/src/cli.js", "SHADW_API_KEY is not set")}</p>`),
   "keys.html": inner("keys.html", "keys.html", "Keys", "API keys and roles for agents using shadw-MCP.", `${fig("roles")} roles. Give the agent the lowest one that works.`, `
-<p class="lede">A key carries one of ${roles.length} roles (${roles.map((r) => `<code>${r}</code>`).join(", ")}); give the agent the lowest that works. A key cannot mint a role above its own: the Shadw server refuses it, not this one <a class="cite" href="https://github.com/PrometheusIntelligence/shadow/blob/2522715/crates/hive-cloud/src/admin.rs#L11995">shadow: hive-cloud/src/admin.rs:11995</a>. ${cite("server/src/tools.js", "role: z.enum(")}</p>
+<p class="lede">Roles: ${roles.map((r) => `<code>${r}</code>`).join(", ")}. ${cite("server/src/tools.js", "role: z.enum(")} <a class="cite" href="https://github.com/PrometheusIntelligence/shadow/blob/2522715/crates/hive-cloud/src/admin.rs#L11995">shadow: hive-cloud/src/admin.rs:11995</a></p>
 <p>A bad or missing key comes back as an error result that names the fix (<code>SHADW_API_KEY</code>, and <code>SHADW_TEAM</code> for a key that spans teams), not as a crash. ${cite("server/src/tools.js", "e.status === 401 || e.status === 403")}</p>
 ${stageTools("keys")}`),
   "deploy.html": inner("deploy.html", "deploy.html", "Deploy", "Deploy a Git repository to Shadw from an agent.", `One call ships a repo, and by default waits for the build.`, `

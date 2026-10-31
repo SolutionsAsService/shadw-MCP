@@ -18,3 +18,12 @@ Read before the next design run on this site.
   base rule. (Krug R2)
 - The relay's wire stays visible across the tiles only above the tile fill (`z-index: 2`) and only through the empty
   band under the step labels (y 45–51 at 1280). (Arnheim R1, M5)
+- Shadw's framework detector (fluid-build `framework::detect`) picks `node` for any root `package.json` with a `start`
+  script, before the static fallback, and `vercel.json` `"framework": null` does not override it. Measured: this repo
+  at fef13d3 -> `node`, at b1620b0 (server in `server/`) -> `static`. (run 2, M7)
+- Under mobile device emulation a page that overflows sideways zooms out, and `innerHeight` grows (3,248 px at 375 x
+  812); measure the first screen against the emulated size, not `innerHeight`. (run 2, `--selftest`)
+- Forced colours drop `box-shadow` and background fills: a current-page cue or a button drawn with them disappears;
+  underline and border instead. (Mace, run 2 R0)
+- A path rewrite with a lookbehind that excludes `/` misses `blob/main/src/...`; resolve every printed source link
+  with `git show <sha>:<path>` after moving files. (run 2, M10)

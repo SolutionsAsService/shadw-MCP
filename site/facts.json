@@ -61,6 +61,14 @@
       "value": 500,
       "procedure": "the status a live probe must stay below to count as answering, probe() in server/src/tools.js"
     },
+    "healthRanges": {
+      "value": "30m, 1h, 24h, 7d",
+      "procedure": "the range enum of shadw_project_health in server/src/tools.js"
+    },
+    "version": {
+      "value": "0.1.0",
+      "procedure": "version in server/package.json"
+    },
     "tests": {
       "value": 7,
       "procedure": "top-level test( calls in server/test/server.test.js; run `npm test`"

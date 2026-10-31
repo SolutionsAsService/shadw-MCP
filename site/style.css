@@ -65,7 +65,7 @@ h1, h2, h3 { line-height: 1.12; margin: 0 0 .5em; letter-spacing: -.01em; }
 .chips { list-style: none; margin: auto 18px 0; padding: 12px 0 14px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
 .chip a { display: flex; align-items: center; gap: 10px; min-height: 26px; color: var(--mute); text-decoration: none; }
 /* M9: tool names read as links (Krug R0): underlined like inline links, brighter on hover */
-.chip a code { text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+.chip a code { text-decoration: underline; text-decoration-color: var(--mute); text-underline-offset: 3px; }
 .chip a:hover code { color: var(--ink); text-decoration-color: currentColor; }
 .chip a::before { content: ""; width: 16px; height: 16px; flex: none; border-radius: 2px; }
 .k-destructive.chip code { color: var(--amber); font-weight: 600; }
