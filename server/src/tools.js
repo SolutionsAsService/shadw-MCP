@@ -159,7 +159,7 @@ export function registerTools(server, client, { fetchImpl = globalThis.fetch } =
     "shadw_revoke_api_key",
     {
       title: "Revoke a Shadw API key",
-      description: "Revoke an API key by id. Anything using it stops authenticating at once.",
+      description: "Revoke an API key by id. Anything using it stops authenticating.",
       inputSchema: { id: z.string().min(1) },
       annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: true },
     },
