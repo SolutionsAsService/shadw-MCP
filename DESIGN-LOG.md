@@ -536,3 +536,9 @@ pointing at `blob/main/src/tools.js` after the move. No seat clicked a link; the
 amendment:** after any move that relocates files, the measuring script resolves every source link it prints (here,
 `git show <sha>:<path>`), and a link check joins the measurement checklist's probes as "resolves", not just
 "internal".
+
+## Human grade (run 2)
+
+| Date | Grade | Words (verbatim) | What it most likely rewards |
+|---|---|---|---|
+| 2026-10-31 | **A** | "okay a design very good rcord that success" | The deploy defect found by three seats and the fix measured with Shadw's own detector, plus a record that ties every claim to the code. |
