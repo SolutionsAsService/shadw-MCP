@@ -1,0 +1,182 @@
+{
+  "built_from": "https://github.com/SolutionsAsService/shadw-MCP (src/tools.js, src/client.js, test/server.test.js)",
+  "figures": {
+    "tools": {
+      "value": 15,
+      "procedure": "count of server.registerTool( calls in src/tools.js"
+    },
+    "read": {
+      "value": 9,
+      "procedure": "tools whose annotations are RO (readOnlyHint: true)"
+    },
+    "write": {
+      "value": 5,
+      "procedure": "tools whose annotations are WRITE (readOnlyHint: false, no destructiveHint)"
+    },
+    "destructive": {
+      "value": 1,
+      "procedure": "tools whose annotations set destructiveHint: true"
+    },
+    "roles": {
+      "value": 4,
+      "procedure": "values of the role enum in shadw_create_api_key"
+    },
+    "requiredEnv": {
+      "value": 1,
+      "procedure": "SHADW_API_KEY (or its alias SHADW_TOKEN) is the only required variable: without it every tool but shadw_platform_status fails (src/cli.js warns)"
+    },
+    "envVars": {
+      "value": 6,
+      "procedure": "distinct env.SHADW_* reads in src/client.js"
+    },
+    "waitDefault": {
+      "value": 600,
+      "procedure": "timeout_seconds default in shadw_deploy"
+    },
+    "waitMax": {
+      "value": 3600,
+      "procedure": "timeout_seconds max in shadw_deploy"
+    },
+    "logTail": {
+      "value": 40,
+      "procedure": "summarizeBuild default tail in src/tools.js"
+    },
+    "verdicts": {
+      "value": 3,
+      "procedure": "distinct status strings returned by projectHealth"
+    },
+    "rollbackCalls": {
+      "value": 2,
+      "procedure": "calls on the rollback path: shadw_list_deployments (for the id), then shadw_promote_deployment"
+    },
+    "tests": {
+      "value": 7,
+      "procedure": "top-level test( calls in test/server.test.js; run `npm test`"
+    }
+  },
+  "tools": [
+    {
+      "name": "shadw_whoami",
+      "kind": "read",
+      "routes": [
+        "GET /v1/whoami"
+      ],
+      "source": "src/tools.js:121"
+    },
+    {
+      "name": "shadw_create_api_key",
+      "kind": "write",
+      "routes": [
+        "POST /v1/apikeys"
+      ],
+      "source": "src/tools.js:132"
+    },
+    {
+      "name": "shadw_list_api_keys",
+      "kind": "read",
+      "routes": [
+        "GET /v1/apikeys"
+      ],
+      "source": "src/tools.js:148"
+    },
+    {
+      "name": "shadw_revoke_api_key",
+      "kind": "destructive",
+      "routes": [
+        "DELETE /v1/apikeys/:id"
+      ],
+      "source": "src/tools.js:159"
+    },
+    {
+      "name": "shadw_deploy",
+      "kind": "write",
+      "routes": [
+        "POST /v1/git/deploy",
+        "GET /v1/builds/:id"
+      ],
+      "source": "src/tools.js:170"
+    },
+    {
+      "name": "shadw_build_status",
+      "kind": "read",
+      "routes": [
+        "GET /v1/builds/:id"
+      ],
+      "source": "src/tools.js:200"
+    },
+    {
+      "name": "shadw_cancel_build",
+      "kind": "write",
+      "routes": [
+        "POST /v1/builds/:id/cancel"
+      ],
+      "source": "src/tools.js:219"
+    },
+    {
+      "name": "shadw_list_projects",
+      "kind": "read",
+      "routes": [
+        "GET /v1/gitops/projects"
+      ],
+      "source": "src/tools.js:230"
+    },
+    {
+      "name": "shadw_project",
+      "kind": "read",
+      "routes": [
+        "GET /v1/projects/:project/settings"
+      ],
+      "source": "src/tools.js:250"
+    },
+    {
+      "name": "shadw_project_health",
+      "kind": "read",
+      "routes": [
+        "GET /v1/gitops/projects",
+        "GET /v1/logs"
+      ],
+      "source": "src/tools.js:261"
+    },
+    {
+      "name": "shadw_list_deployments",
+      "kind": "read",
+      "routes": [
+        "GET /deployments"
+      ],
+      "source": "src/tools.js:277"
+    },
+    {
+      "name": "shadw_promote_deployment",
+      "kind": "write",
+      "routes": [
+        "POST /v1/deployments/:id/promote"
+      ],
+      "source": "src/tools.js:302"
+    },
+    {
+      "name": "shadw_redeploy_project",
+      "kind": "write",
+      "routes": [
+        "POST /v1/projects/:project/redeploy"
+      ],
+      "source": "src/tools.js:313"
+    },
+    {
+      "name": "shadw_logs",
+      "kind": "read",
+      "routes": [
+        "GET /v1/logs"
+      ],
+      "source": "src/tools.js:324"
+    },
+    {
+      "name": "shadw_platform_status",
+      "kind": "read",
+      "routes": [
+        "GET /v1/status",
+        "GET /v1/status/incidents"
+      ],
+      "source": "src/tools.js:347"
+    }
+  ]
+}

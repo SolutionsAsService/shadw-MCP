@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deploy · shadw-MCP</title>
+<meta name="description" content="Deploy a Git repository to Shadw from an agent.">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+<link rel="canonical" href="https://shadw-mcp.shadw.app/deploy">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Deploy · shadw-MCP">
+<meta property="og:description" content="Deploy a Git repository to Shadw from an agent.">
+<meta property="og:url" content="https://shadw-mcp.shadw.app/deploy">
+<meta property="og:image" content="https://shadw-mcp.shadw.app/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar"><div class="wrap bar-in">
+  <a class="brand" href="index.html" aria-label="shadw-MCP home"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#mark"/></svg><span>shadw<b>-MCP</b></span></a>
+  <nav aria-label="Pages"><a href="setup.html">Set up</a><a href="keys.html">Keys</a><a href="deploy.html" aria-current="page">Deploy</a><a href="health.html">Health</a><a href="rollback.html">Roll back</a><a href="tools.html">Tools</a></nav>
+</div></header>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="ramp" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#e92a67"/><stop offset=".52" stop-color="#a853ba"/><stop offset="1" stop-color="#2a8af6"/></linearGradient>
+  <symbol id="mark" viewBox="0 0 32 32"><rect x="1" y="1" width="30" height="30" rx="7" fill="#000" stroke="#3f3f4a"/><path d="M5 11h7v10h8V11h7" fill="none" stroke="url(#ramp)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="27" cy="11" r="2.6" fill="#2a8af6"/></symbol>
+</defs></svg>
+<main id="main">
+<section class="head"><div class="wrap"><p class="kicker">2 · Deploy</p><h1>One call ships a repo, and by default waits for the build.</h1></div></section>
+<section class="body"><div class="wrap">
+<p class="lede"><code>shadw_deploy</code> posts the same body as <code>shadw deploy</code> in the CLI, tagged <code>creator: "mcp"</code>. With <code>wait</code> on (the default) it polls the build until <code>ready</code>, <code>error</code> or <code>cancelled</code>, for up to 600 seconds by default (at most 3600), and returns the state, the URL and the last 40 log lines <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L26">src/tools.js:26</a>. <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/client.js#L86">src/client.js:86</a> <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L33">src/tools.js:33</a></p>
+<div class="tools"><article class="tool k-write" id="shadw_deploy">
+  <header><h3><code>shadw_deploy</code></h3><span class="kind">write</span></header>
+  <p>Clone, build and deploy a Git repository (POST /v1/git/deploy). With wait=true, polls the build until ready/error/cancelled and returns its state, URL and the tail of its log.</p>
+  <p class="routes"><code>POST /v1/git/deploy</code> <code>GET /v1/builds/:id</code></p>
+  <dl class="params"><dt><code>repo_url</code></dt><dd>required</dd><dt><code>branch</code></dt><dd>optional</dd><dt><code>project</code></dt><dd>optional</dd><dt><code>root_dir</code></dt><dd>optional</dd><dt><code>target</code></dt><dd>optional</dd><dt><code>no_cache</code></dt><dd>optional</dd><dt><code>env</code></dt><dd>optional</dd><dt><code>wait</code></dt><dd>default <code>true</code></dd><dt><code>timeout_seconds</code></dt><dd>default <code>600</code></dd></dl>
+  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L170">src/tools.js:170</a></p>
+</article><article class="tool k-read" id="shadw_build_status">
+  <header><h3><code>shadw_build_status</code></h3><span class="kind">read</span></header>
+  <p>A build's state and the tail of its log. wait=true polls until it finishes.</p>
+  <p class="routes"><code>GET /v1/builds/:id</code></p>
+  <dl class="params"><dt><code>id</code></dt><dd>required</dd><dt><code>wait</code></dt><dd>default <code>false</code></dd><dt><code>tail</code></dt><dd>default <code>60</code></dd></dl>
+  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L200">src/tools.js:200</a></p>
+</article><article class="tool k-write" id="shadw_cancel_build">
+  <header><h3><code>shadw_cancel_build</code></h3><span class="kind">write</span></header>
+  <p>Cancel a running build.</p>
+  <p class="routes"><code>POST /v1/builds/:id/cancel</code></p>
+  <dl class="params"><dt><code>id</code></dt><dd>required</dd></dl>
+  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L219">src/tools.js:219</a></p>
+</article></div></div></section>
+</main>
+<footer class="foot"><div class="wrap foot-in">
+  <p>shadw-MCP 0.1.0 talks to the Shadw control-plane API in <a href="https://github.com/dywongcloud/shadow">dywongcloud/shadow</a>. Source: <a href="https://github.com/SolutionsAsService/shadw-MCP">github.com/SolutionsAsService/shadw-MCP</a>. Every number on this site is computed from the source at build time: <a href="facts.json">facts.json</a>.</p>
+  <nav aria-label="Footer"><a href="setup.html">Set up</a><a href="keys.html">Keys</a><a href="deploy.html">Deploy</a><a href="health.html">Health</a><a href="rollback.html">Roll back</a><a href="tools.html">Tools</a></nav>
+</div></footer>
+</body>
+</html>

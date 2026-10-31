@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keys · shadw-MCP</title>
+<meta name="description" content="API keys and roles for agents using shadw-MCP.">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+<link rel="canonical" href="https://shadw-mcp.shadw.app/keys">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Keys · shadw-MCP">
+<meta property="og:description" content="API keys and roles for agents using shadw-MCP.">
+<meta property="og:url" content="https://shadw-mcp.shadw.app/keys">
+<meta property="og:image" content="https://shadw-mcp.shadw.app/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar"><div class="wrap bar-in">
+  <a class="brand" href="index.html" aria-label="shadw-MCP home"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#mark"/></svg><span>shadw<b>-MCP</b></span></a>
+  <nav aria-label="Pages"><a href="setup.html">Set up</a><a href="keys.html" aria-current="page">Keys</a><a href="deploy.html">Deploy</a><a href="health.html">Health</a><a href="rollback.html">Roll back</a><a href="tools.html">Tools</a></nav>
+</div></header>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="ramp" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#e92a67"/><stop offset=".52" stop-color="#a853ba"/><stop offset="1" stop-color="#2a8af6"/></linearGradient>
+  <symbol id="mark" viewBox="0 0 32 32"><rect x="1" y="1" width="30" height="30" rx="7" fill="#000" stroke="#3f3f4a"/><path d="M5 11h7v10h8V11h7" fill="none" stroke="url(#ramp)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="27" cy="11" r="2.6" fill="#2a8af6"/></symbol>
+</defs></svg>
+<main id="main">
+<section class="head"><div class="wrap"><p class="kicker">1 · Keys</p><h1>4 roles. Give the agent the lowest one that works.</h1></div></section>
+<section class="body"><div class="wrap">
+<p class="lede">A key carries one of <code>viewer</code>, <code>member</code>, <code>admin</code>, <code>owner</code>. <code>shadw_create_api_key</code> defaults to <code>member</code>, and its plaintext token is returned once. <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L140">src/tools.js:140</a></p>
+<p>A bad or missing key comes back as an error result that names the fix (<code>SHADW_API_KEY</code>, and <code>SHADW_TEAM</code> for a key that spans teams), not as a crash. <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L15">src/tools.js:15</a></p>
+<div class="tools"><article class="tool k-read" id="shadw_whoami">
+  <header><h3><code>shadw_whoami</code></h3><span class="kind">read</span></header>
+  <p>Verify the configured API key: who it authenticates as, its team (tenant) and role.</p>
+  <p class="routes"><code>GET /v1/whoami</code></p>
+  <p class="muted">No parameters.</p>
+  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L121">src/tools.js:121</a></p>
+</article><article class="tool k-write" id="shadw_create_api_key">
+  <header><h3><code>shadw_create_api_key</code></h3><span class="kind">write</span></header>
+  <p>Mint a new API key for an agent. The plaintext token is returned ONCE; store it as SHADW_API_KEY. Prefer the lowest role that works: viewer (read), member (deploy), admin, owner. A key cannot exceed its creator's role.</p>
+  <p class="routes"><code>POST /v1/apikeys</code></p>
+  <dl class="params"><dt><code>name</code></dt><dd>required</dd><dt><code>role</code></dt><dd>default <code>&quot;member&quot;</code></dd></dl>
+  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L132">src/tools.js:132</a></p>
+</article><article class="tool k-read" id="shadw_list_api_keys">
+  <header><h3><code>shadw_list_api_keys</code></h3><span class="kind">read</span></header>
+  <p>List the team's API keys (ids, names, roles; never the secret).</p>
+  <p class="routes"><code>GET /v1/apikeys</code></p>
+  <p class="muted">No parameters.</p>
+  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L148">src/tools.js:148</a></p>
+</article><article class="tool k-destructive" id="shadw_revoke_api_key">
+  <header><h3><code>shadw_revoke_api_key</code></h3><span class="kind">destructive</span></header>
+  <p>Revoke an API key by id. Anything using it stops authenticating at once.</p>
+  <p class="routes"><code>DELETE /v1/apikeys/:id</code></p>
+  <dl class="params"><dt><code>id</code></dt><dd>required</dd></dl>
+  <p class="src"><a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/tools.js#L159">src/tools.js:159</a></p>
+</article></div></div></section>
+</main>
+<footer class="foot"><div class="wrap foot-in">
+  <p>shadw-MCP 0.1.0 talks to the Shadw control-plane API in <a href="https://github.com/dywongcloud/shadow">dywongcloud/shadow</a>. Source: <a href="https://github.com/SolutionsAsService/shadw-MCP">github.com/SolutionsAsService/shadw-MCP</a>. Every number on this site is computed from the source at build time: <a href="facts.json">facts.json</a>.</p>
+  <nav aria-label="Footer"><a href="setup.html">Set up</a><a href="keys.html">Keys</a><a href="deploy.html">Deploy</a><a href="health.html">Health</a><a href="rollback.html">Roll back</a><a href="tools.html">Tools</a></nav>
+</div></footer>
+</body>
+</html>

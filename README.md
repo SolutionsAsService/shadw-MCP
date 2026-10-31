@@ -80,3 +80,28 @@ npm test
 
 The tests run the real MCP client against the server over an in-memory transport, and a local mock of the Shadw API
 stands in for the real one. They never call the live API.
+
+## Site
+
+The project site lives in [`site/`](site/) (live address once deployed: `https://shadw-mcp.shadw.app/`). It has eight
+pages: the landing, setup, keys, deploy, health, rollback, tools and 404.
+
+[`_src/build.mjs`](_src/build.mjs) generates every page from `src/tools.js`, `src/client.js` and `src/cli.js`, so the
+site cannot list a tool, figure or default the server does not have. Each number it prints is recorded with its
+procedure in `site/facts.json`. Each sentence about behaviour links to the line it describes, and the build fails if
+that line is gone.
+
+```bash
+node _src/build.mjs
+```
+
+```bash
+node _src/measure.mjs
+```
+
+The second command renders every page in headless Chrome. It checks the first screen, overflow, contrast and target
+sizes, and writes the social card.
+
+The site is deploy-ready for Vercel and Shadw: a root `vercel.json` (`"framework": null`, output `site`), a
+`site/vercel.json`, and a root `index.html` that redirects. The design process is recorded in
+[`DESIGN-LOG.md`](DESIGN-LOG.md).

@@ -1,3 +1,5 @@
-node_modules/
 *.log
+.dada/measure/
+.dada/measure/.chrome-profile/
 .env
+node_modules/

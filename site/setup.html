@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Set up · shadw-MCP</title>
+<meta name="description" content="Install shadw-MCP and register it with an MCP client.">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+<link rel="canonical" href="https://shadw-mcp.shadw.app/setup">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Set up · shadw-MCP">
+<meta property="og:description" content="Install shadw-MCP and register it with an MCP client.">
+<meta property="og:url" content="https://shadw-mcp.shadw.app/setup">
+<meta property="og:image" content="https://shadw-mcp.shadw.app/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar"><div class="wrap bar-in">
+  <a class="brand" href="index.html" aria-label="shadw-MCP home"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#mark"/></svg><span>shadw<b>-MCP</b></span></a>
+  <nav aria-label="Pages"><a href="setup.html" aria-current="page">Set up</a><a href="keys.html">Keys</a><a href="deploy.html">Deploy</a><a href="health.html">Health</a><a href="rollback.html">Roll back</a><a href="tools.html">Tools</a></nav>
+</div></header>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="ramp" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#e92a67"/><stop offset=".52" stop-color="#a853ba"/><stop offset="1" stop-color="#2a8af6"/></linearGradient>
+  <symbol id="mark" viewBox="0 0 32 32"><rect x="1" y="1" width="30" height="30" rx="7" fill="#000" stroke="#3f3f4a"/><path d="M5 11h7v10h8V11h7" fill="none" stroke="url(#ramp)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="27" cy="11" r="2.6" fill="#2a8af6"/></symbol>
+</defs></svg>
+<main id="main">
+<section class="head"><div class="wrap"><p class="kicker">0 · Set up</p><h1>One key, one command, and your agent can reach Shadw.</h1></div></section>
+<section class="body"><div class="wrap">
+<ol class="steps">
+  <li><h2>Make a key</h2><p>In the Shadw dashboard, open <b>Settings → API Keys</b>. Use role <code>member</code> to deploy, or <code>viewer</code> for read-only checks. An agent that already has a key can create one with <code>shadw_create_api_key</code>; see <a href="keys.html">Keys</a>.</p></li>
+  <li><h2>Install</h2><pre><code>git clone https://github.com/SolutionsAsService/shadw-MCP
+cd shadw-MCP &amp;&amp; npm install</code></pre></li>
+  <li><h2>Register it</h2><p>Claude Code:</p><pre><code>claude mcp add shadw -e SHADW_API_KEY=shadw_your_key -- node /path/to/shadw-MCP/src/cli.js</code></pre><p>Any other MCP client:</p><pre><code>{
+  "mcpServers": {
+    "shadw": {
+      "command": "node",
+      "args": ["/path/to/shadw-MCP/src/cli.js"],
+      "env": { "SHADW_API_KEY": "shadw_your_key" }
+    }
+  }
+}</code></pre></li>
+</ol>
+<h2>Settings</h2>
+<p>The server reads 6 environment variables; only the key is required. <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/client.js#L17">src/client.js:17</a></p>
+<table class="t"><thead><tr><th scope="col">Variable</th><th scope="col">Meaning</th><th scope="col">Default</th></tr></thead><tbody>
+<tr><td><code>SHADW_API_KEY</code>, <code>SHADW_TOKEN</code></td><td>Bearer API key</td><td>none</td></tr>
+<tr><td><code>SHADW_API_URL</code>, <code>SHADW_API</code></td><td>Control-plane base URL</td><td><code>https://api.shadw.cloud</code></td></tr>
+<tr><td><code>SHADW_TEAM</code></td><td>Team slug, sent as <code>x-hive-team</code></td><td>none: the key's own team</td></tr>
+<tr><td><code>SHADW_TIMEOUT_MS</code></td><td>Per-request timeout</td><td><code>30000</code></td></tr>
+</tbody></table>
+<p>Without a key the server still starts, and says so on stderr; only <code>shadw_platform_status</code> works. <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/cli.js#L6">src/cli.js:6</a></p></div></section>
+</main>
+<footer class="foot"><div class="wrap foot-in">
+  <p>shadw-MCP 0.1.0 talks to the Shadw control-plane API in <a href="https://github.com/dywongcloud/shadow">dywongcloud/shadow</a>. Source: <a href="https://github.com/SolutionsAsService/shadw-MCP">github.com/SolutionsAsService/shadw-MCP</a>. Every number on this site is computed from the source at build time: <a href="facts.json">facts.json</a>.</p>
+  <nav aria-label="Footer"><a href="setup.html">Set up</a><a href="keys.html">Keys</a><a href="deploy.html">Deploy</a><a href="health.html">Health</a><a href="rollback.html">Roll back</a><a href="tools.html">Tools</a></nav>
+</div></footer>
+</body>
+</html>

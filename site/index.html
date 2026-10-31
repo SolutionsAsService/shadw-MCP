@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>shadw-MCP: give an agent a Shadw key</title>
+<meta name="description" content="An MCP server with 15 tools. With a Shadw API key, an agent deploys a Git repo, follows the build, checks project health and rolls back.">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+<link rel="canonical" href="https://shadw-mcp.shadw.app/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="shadw-MCP: give an agent a Shadw key">
+<meta property="og:description" content="An MCP server with 15 tools. With a Shadw API key, an agent deploys a Git repo, follows the build, checks project health and rolls back.">
+<meta property="og:url" content="https://shadw-mcp.shadw.app/">
+<meta property="og:image" content="https://shadw-mcp.shadw.app/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar"><div class="wrap bar-in">
+  <a class="brand" href="index.html" aria-label="shadw-MCP home"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#mark"/></svg><span>shadw<b>-MCP</b></span></a>
+  <nav aria-label="Pages"><a href="setup.html">Set up</a><a href="keys.html">Keys</a><a href="deploy.html">Deploy</a><a href="health.html">Health</a><a href="rollback.html">Roll back</a><a href="tools.html">Tools</a></nav>
+</div></header>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="ramp" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#e92a67"/><stop offset=".52" stop-color="#a853ba"/><stop offset="1" stop-color="#2a8af6"/></linearGradient>
+  <symbol id="mark" viewBox="0 0 32 32"><rect x="1" y="1" width="30" height="30" rx="7" fill="#000" stroke="#3f3f4a"/><path d="M5 11h7v10h8V11h7" fill="none" stroke="url(#ramp)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="27" cy="11" r="2.6" fill="#2a8af6"/></symbol>
+</defs></svg>
+<main id="main">
+<section class="hero"><div class="wrap">
+  <h1>Give an agent a Shadw key. It deploys, checks and rolls back.</h1>
+  <p class="what">An MCP (Model Context Protocol) server: it gives Claude Code, or any MCP client, 15 tools for Shadw.</p>
+  <div class="relay-box"><div class="wire" aria-hidden="true"></div><ol class="relay" aria-label="What an agent does with shadw-MCP, in order">
+  <li class="stage s-setup">
+    <a class="tile" href="setup.html" aria-labelledby="s-setup n-setup u-setup"><span class="step" id="s-setup">0 · Set up</span>
+    <span class="num" id="n-setup">1</span>
+    <span class="unit" id="u-setup">key to set</span>
+    <span class="sub"><code>SHADW_API_KEY</code></span></a>
+    <p class="chips start"><a class="btn" href="setup.html">Set it up →</a><code>npm install</code></p>
+  </li>
+  <li class="stage s-keys">
+    <a class="tile" href="keys.html" aria-labelledby="s-keys n-keys u-keys"><span class="step" id="s-keys">1 · Key</span>
+    <span class="num" id="n-keys">4</span>
+    <span class="unit" id="u-keys">roles a key can carry</span>
+    <span class="sub">viewer · member · admin · owner</span></a>
+    <ul class="chips" aria-label="Key tools"><li class="chip k-read"><a href="tools.html#shadw_whoami"><code>whoami</code><span class="sr">, read-only</span></a></li><li class="chip k-write"><a href="tools.html#shadw_create_api_key"><code>create_api_key</code><span class="sr">, write</span></a></li><li class="chip k-read"><a href="tools.html#shadw_list_api_keys"><code>list_api_keys</code><span class="sr">, read-only</span></a></li><li class="chip k-destructive"><a href="tools.html#shadw_revoke_api_key"><code>revoke_api_key</code><span class="sr">, destructive</span></a></li></ul>
+  </li>
+  <li class="stage s-deploy">
+    <a class="tile" href="deploy.html" aria-labelledby="s-deploy n-deploy u-deploy"><span class="step" id="s-deploy">2 · Deploy</span>
+    <span class="num" id="n-deploy">600</span>
+    <span class="unit" id="u-deploy">seconds it waits for the build</span>
+    <span class="sub">at most, by default (up to 3600); then state, URL, log tail</span></a>
+    <ul class="chips" aria-label="Deploy tools"><li class="chip k-write"><a href="tools.html#shadw_deploy"><code>deploy</code><span class="sr">, write</span></a></li><li class="chip k-read"><a href="tools.html#shadw_build_status"><code>build_status</code><span class="sr">, read-only</span></a></li><li class="chip k-write"><a href="tools.html#shadw_cancel_build"><code>cancel_build</code><span class="sr">, write</span></a></li></ul>
+  </li>
+  <li class="stage s-health">
+    <a class="tile" href="health.html" aria-labelledby="s-health n-health u-health"><span class="step" id="s-health">3 · Check</span>
+    <span class="num" id="n-health">3</span>
+    <span class="unit" id="u-health">verdicts per project</span>
+    <span class="sub">down · degraded · healthy</span></a>
+    <ul class="chips" aria-label="Check tools"><li class="chip k-read"><a href="tools.html#shadw_project_health"><code>project_health</code><span class="sr">, read-only</span></a></li><li class="chip k-read"><a href="tools.html#shadw_logs"><code>logs</code><span class="sr">, read-only</span></a></li><li class="chip k-read"><a href="tools.html#shadw_platform_status"><code>platform_status</code><span class="sr">, read-only</span></a></li><li class="chip k-read"><a href="tools.html#shadw_list_projects"><code>list_projects</code><span class="sr">, read-only</span></a></li><li class="chip k-read"><a href="tools.html#shadw_project"><code>project</code><span class="sr">, read-only</span></a></li></ul>
+  </li>
+  <li class="stage s-rollback">
+    <a class="tile" href="rollback.html" aria-labelledby="s-rollback n-rollback u-rollback"><span class="step" id="s-rollback">4 · Roll back</span>
+    <span class="num" id="n-rollback">2</span>
+    <span class="unit" id="u-rollback">calls to roll back</span>
+    <span class="sub">list deployments, then make an earlier one live again</span></a>
+    <ul class="chips" aria-label="Roll back tools"><li class="chip k-read"><a href="tools.html#shadw_list_deployments"><code>list_deployments</code><span class="sr">, read-only</span></a></li><li class="chip k-write"><a href="tools.html#shadw_promote_deployment"><code>promote_deployment</code><span class="sr">, write</span></a></li><li class="chip k-write"><a href="tools.html#shadw_redeploy_project"><code>redeploy_project</code><span class="sr">, write</span></a></li></ul>
+  </li>
+</ol></div>
+  <p class="legend"><span class="lg k-read"></span>9 read-only <span class="lg k-write"></span>5 write <span class="lg k-destructive"></span>1 destructive <a href="tools.html">all 15 tools →</a></p>
+</div></section>
+<section class="band"><div class="wrap cols">
+  <div class="c6"><h2>One server, the API the CLI already uses</h2><p>shadw-MCP sends the same requests as Dylan Wong's <code>shadw</code> CLI: a bearer API key, an optional <code>x-hive-team</code> header, and the same routes (mostly <code>/v1</code>) on the Shadw control plane (default <code>https://api.shadw.cloud</code>). <a class="cite" href="https://github.com/SolutionsAsService/shadw-MCP/blob/main/src/client.js#L40">src/client.js:40</a></p></div>
+  <div class="c6"><h2>The key decides what the agent may do</h2><p>The server never deletes a project or a deployment. Revoking a key is the only destructive tool, and it is marked <code>destructiveHint</code>. Whether a key may create another key, and with which role, is decided by the Shadw server, not by this one.</p><p><a class="btn" href="setup.html">Set it up</a> <a class="btn ghost" href="tools.html">See all 15 tools</a></p></div>
+</div></section>
+</main>
+<footer class="foot"><div class="wrap foot-in">
+  <p>shadw-MCP 0.1.0 talks to the Shadw control-plane API in <a href="https://github.com/dywongcloud/shadow">dywongcloud/shadow</a>. Source: <a href="https://github.com/SolutionsAsService/shadw-MCP">github.com/SolutionsAsService/shadw-MCP</a>. Every number on this site is computed from the source at build time: <a href="facts.json">facts.json</a>.</p>
+  <nav aria-label="Footer"><a href="setup.html">Set up</a><a href="keys.html">Keys</a><a href="deploy.html">Deploy</a><a href="health.html">Health</a><a href="rollback.html">Roll back</a><a href="tools.html">Tools</a></nav>
+</div></footer>
+</body>
+</html>

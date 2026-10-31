@@ -1,0 +1,9 @@
+# R1 Critic: Formalist (Arnheim)
+
+- Anchor used: Arnheim, Art and Visual Perception: the structural skeleton of the frame, visual weight and balance, directed tension, figure and ground.
+
+- Observed: In index-1280 the eye enters at the white headline (top left, 64 to 740 px). It drops to the five tiles, where "600" (the heaviest mass, in the middle tile) holds the structural centre. That part is well composed. The wire does not carry the movement. `.stage a` paints `rgba(11,11,14,.82)` over a 4 px `.wire` (z-index 0), so the line shows at full strength only in the 12 px gaps and at the two bleeds (pink at x 40, blue at x 1240). Inside the tiles it is a faint purple seam under the step labels. You read five dots more than one directed vector. The matrix strip (y 713) is grouped 4/3/5/3 at x 64 to 532, and those groups do not sit under the stages they belong to: stage 1's tiles start at x 297, but its group starts at x 64. The miniature repeats the five-stage skeleton but drifts out of register, so it hangs left as a separate small weight. The empty lower half of "0 · Set up" (y 520 to 620, with "npm install" pinned at the bottom) is a rest: it is the entry tile, under the headline's left mass, and it is the only tile without tools. In index-375 the vertical `.relay::before` runs outside the tiles, unoccluded from y 218 to 700, with dots at each tile's middle. There it is a true axis of tension and does the job better than the desktop wire.
+
+- Verdict: OBJECT (minor; the figure holds, but the desktop vector is lost behind the tiles)
+
+- Requested change: (1) Raise the wire above the tile fill, or open a clear band in each tile at y 46 so the gradient reads across all five borders the way it does on the phone. (2) Place each matrix group under its own stage's column (one 5-column grid matching `.relay`, with an empty slot for stage 0) so the strip echoes the relay instead of hanging at the left.
